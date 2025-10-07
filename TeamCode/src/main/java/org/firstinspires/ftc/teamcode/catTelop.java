@@ -28,6 +28,10 @@
  */
 package org.firstinspires.ftc.teamcode;
 
+import com.qualcomm.hardware.limelightvision.LLResult;
+import com.qualcomm.hardware.limelightvision.LLResultTypes;
+import com.qualcomm.hardware.limelightvision.LLStatus;
+import com.qualcomm.hardware.limelightvision.Limelight3A;
 import com.qualcomm.hardware.rev.RevHubOrientationOnRobot;
 import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
@@ -36,6 +40,9 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.IMU;
 
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
+import org.firstinspires.ftc.robotcore.external.navigation.Pose3D;
+
+import java.util.List;
 
 /*
  * This OpMode illustrates how to program your robot to drive field relative.  This means
@@ -62,6 +69,8 @@ public class catTelop extends OpMode {
 
     // This declares the IMU needed to get the current direction the robot is facing
     IMU imu;
+    private Limelight3A limelight;
+    boolean isAutoAim;
 
     @Override
     public void init() {
@@ -92,6 +101,19 @@ public class catTelop extends OpMode {
         RevHubOrientationOnRobot orientationOnRobot = new
                 RevHubOrientationOnRobot(logoDirection, usbDirection);
         imu.initialize(new IMU.Parameters(orientationOnRobot));
+
+        limelight = hardwareMap.get(Limelight3A.class, "limelight");
+
+        telemetry.setMsTransmissionInterval(11);
+
+        limelight.pipelineSwitch(0);
+
+        /*
+         * Starts polling for data.  If you neglect to call start(), getLatestResult() will return null.
+         */
+        limelight.start();
+
+        isAutoAim=false;
     }
 
     @Override
@@ -110,6 +132,43 @@ public class catTelop extends OpMode {
         }
         drive(-gamepad1.right_stick_y, gamepad1.right_stick_x, gamepad1.left_stick_x, driveSpeed);
 
+        if (gamepad1.square){
+            isAutoAim=true;
+        }
+        if (Math.abs(gamepad1.left_stick_x)>0.1) {
+            isAutoAim=false;
+        }
+
+        LLStatus status = limelight.getStatus();
+        telemetry.addData("Name", "%s",
+                status.getName());
+        telemetry.addData("LL", "Temp: %.1fC, CPU: %.1f%%, FPS: %d",
+                status.getTemp(), status.getCpu(),(int)status.getFps());
+        telemetry.addData("Pipeline", "Index: %d, Type: %s",
+                status.getPipelineIndex(), status.getPipelineType());
+        LLResult result = limelight.getLatestResult();
+        if (result.isValid()) {
+            double xAngle=0;
+
+            // Access fiducial results
+            List<LLResultTypes.FiducialResult> fiducialResults = result.getFiducialResults();
+            for (LLResultTypes.FiducialResult fr : fiducialResults) {
+                telemetry.addData("Fiducial", "ID: %d, Family: %s, X: %.2f, Y: %.2f",
+                        fr.getFiducialId(), fr.getFamily(), fr.getTargetXDegrees(), fr.getTargetYDegrees());
+                if ((fr.getFiducialId()==20)||(fr.getFiducialId()==24)){
+                    xAngle=fr.getTargetXDegrees();
+                }
+            }
+            if (isAutoAim){
+                if (xAngle>5){
+                    drive(0,0,1,0.3);
+                }
+                if (xAngle<-5){
+                    drive(0,0,-1,0.3);
+                }
+
+            }
+        }
     }
 
 
