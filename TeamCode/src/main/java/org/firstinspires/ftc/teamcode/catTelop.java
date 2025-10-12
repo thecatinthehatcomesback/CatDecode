@@ -62,10 +62,15 @@ import java.util.List;
 
 public class catTelop extends OpMode {
     // This declares the four motors needed
+    CatHW_Async robot;
+    public  catTelop(){
+        robot=new CatHW_Async();
+    }
     DcMotor frontLeftDrive;
     DcMotor frontRightDrive;
     DcMotor backLeftDrive;
     DcMotor backRightDrive;
+
 
     // This declares the IMU needed to get the current direction the robot is facing
     IMU imu;
@@ -139,6 +144,7 @@ public class catTelop extends OpMode {
             isAutoAim=false;
         }
 
+
         LLStatus status = limelight.getStatus();
         telemetry.addData("Name", "%s",
                 status.getName());
@@ -169,7 +175,13 @@ public class catTelop extends OpMode {
 
             }
         }
+
+        robot.jaws.launch(gamepad1.right_trigger);
+
+        //telemetry.addData("Launch", "power: %.2f rpm: %.1f",gamepad1.right_trigger, robot.jaws.launchRPM());
+
     }
+
 
 
 
