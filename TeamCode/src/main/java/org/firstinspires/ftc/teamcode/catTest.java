@@ -28,6 +28,8 @@
  */
 package org.firstinspires.ftc.teamcode;
 
+import com.acmerobotics.dashboard.config.Config;
+import com.acmerobotics.dashboard.telemetry.TelemetryPacket;
 import com.qualcomm.hardware.limelightvision.LLResult;
 import com.qualcomm.hardware.limelightvision.LLResultTypes;
 import com.qualcomm.hardware.limelightvision.LLStatus;
@@ -41,7 +43,9 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
-
+import com.acmerobotics.dashboard.FtcDashboard;
+import com.acmerobotics.dashboard.telemetry.TelemetryPacket;
+import com.acmerobotics.dashboard.config.Config;
 import java.util.List;
 
 /*
@@ -59,31 +63,54 @@ import java.util.List;
  *
  */
 @TeleOp(name = "Launch Test", group = "Robot")
-
+@Config
 public class catTest extends OpMode {
     // This declares the four motors needed
 
     public DcMotor launcher;
-
+    private static final int ticksPerRev=112;
+    private ElapsedTime timer = new ElapsedTime();
+    private int lastPos = 0;
+    private double lastTime = 0;
     // This declares the IMU needed to get the current direction the robot is facing
     IMU imu;
     private Limelight3A limelight;
     boolean isAutoAim;
 
+    private FtcDashboard dashboard = FtcDashboard.getInstance();
     @Override
     public void init() {
-        launcher=hardwareMap.dcMotor.get("launcher");
-        launcher.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-
+        launcher = hardwareMap.dcMotor.get("launcher");
+        launcher.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        lastPos = launcher.getCurrentPosition();
+        lastTime = timer.seconds();
 
     }
 
     @Override
     public void loop() {
         launcher.setPower(gamepad1.right_stick_y);
+        double RPM = getRPM();
+        telemetry.addData("Launch", "power: %.2f RPM: %.1f",gamepad1.right_stick_y,RPM);
 
-        telemetry.addData("Launch", "power: %.2f",gamepad1.right_trigger);
+        TelemetryPacket packet = new TelemetryPacket();
+        packet.put("RPM",RPM);
+        dashboard.sendTelemetryPacket(packet);
 
+
+
+    }
+    private double getRPM(){
+        int currentPos = launcher.getCurrentPosition();
+        double currentTime = timer.seconds();
+        int deltaTicks = currentPos - lastPos;
+        double deltaTime = currentTime - lastTime;
+        if (deltaTime <= 0) return 0;
+        double rev = (double) deltaTicks/ticksPerRev;
+        double RPM = (rev/deltaTime) * 60;
+        lastPos = currentPos;
+        lastTime = currentTime;
+        return RPM;
     }
 
 
