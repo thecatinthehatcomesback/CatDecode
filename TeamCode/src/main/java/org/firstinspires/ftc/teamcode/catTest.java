@@ -38,6 +38,7 @@ import com.qualcomm.hardware.rev.RevHubOrientationOnRobot;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.IMU;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
@@ -67,8 +68,8 @@ import java.util.List;
 public class catTest extends OpMode {
     // This declares the four motors needed
 
-    public DcMotor launcher;
-    private static final int ticksPerRev=112;
+    public DcMotorEx launcher;
+    private static final int ticksPerRev=28;
     private ElapsedTime timer = new ElapsedTime();
     private int lastPos = 0;
     private double lastTime = 0;
@@ -77,21 +78,37 @@ public class catTest extends OpMode {
     private Limelight3A limelight;
     boolean isAutoAim;
 
+    double targetRPM;
+
     private FtcDashboard dashboard = FtcDashboard.getInstance();
     @Override
     public void init() {
-        launcher = hardwareMap.dcMotor.get("launcher");
+        launcher = (DcMotorEx) hardwareMap.dcMotor.get("launcher");
         launcher.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         lastPos = launcher.getCurrentPosition();
         lastTime = timer.seconds();
-
+        targetRPM = 0;
     }
 
     @Override
     public void loop() {
-        launcher.setPower(gamepad1.right_stick_y);
+        //launcher.setPower(gamepad1.right_stick_y);
+        if (gamepad1.dpad_up){
+            targetRPM += 1;
+        }
+        if (gamepad1.dpad_down){
+            targetRPM -= 1;
+        }
+        if (targetRPM < 0){
+            targetRPM = 0;
+        }
+        if (targetRPM > 6000){
+            targetRPM = 6000;
+        }
+        launcher.setVelocity(targetRPM * ticksPerRev / 60);
         double RPM = getRPM();
-        telemetry.addData("Launch", "power: %.2f RPM: %.1f",gamepad1.right_stick_y,RPM);
+        double vel = launcher.getVelocity();
+        telemetry.addData("Launch", "power: %.2f RPM: %5.0f %5.0f target %.0f",gamepad1.right_stick_y,RPM,vel/ticksPerRev,targetRPM);
 
         TelemetryPacket packet = new TelemetryPacket();
         packet.put("RPM",RPM);
@@ -108,6 +125,7 @@ public class catTest extends OpMode {
         if (deltaTime <= 0) return 0;
         double rev = (double) deltaTicks/ticksPerRev;
         double RPM = (rev/deltaTime) * 60;
+        telemetry.addData("Launch", "dT = %4.3f dTick %4d\n",deltaTime,deltaTicks);
         lastPos = currentPos;
         lastTime = currentTime;
         return RPM;
