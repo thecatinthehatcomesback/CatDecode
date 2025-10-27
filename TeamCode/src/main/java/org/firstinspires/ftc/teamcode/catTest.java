@@ -47,6 +47,10 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.telemetry.TelemetryPacket;
 import com.acmerobotics.dashboard.config.Config;
+import com.qualcomm.robotcore.util.Range;
+
+import org.firstinspires.ftc.robotcore.external.Telemetry;
+
 import java.util.List;
 
 /*
@@ -73,14 +77,35 @@ public class catTest extends OpMode {
     private ElapsedTime timer = new ElapsedTime();
     private int lastPos = 0;
     private double lastTime = 0;
+
+    public static double kP = 0.0008;
+    public static double kI = 0.0;
+    public static double kD = 0.0001;
+    public static double kF = 0.0;
+    public static double targetRPM;
+    private double integral = 0;
+    private double lastError = 0;
+
     // This declares the IMU needed to get the current direction the robot is facing
     IMU imu;
     private Limelight3A limelight;
     boolean isAutoAim;
 
-    double targetRPM;
+    public void reset(){ integral = 0; lastError = 0; timer.reset();}
+    public double update (double measuredRPM){
+        double dt = Math.max(1e-3,timer.seconds());
+        timer.reset();
+        double error = targetRPM - measuredRPM;
+        integral += error * dt;
+        double derivative = (error - lastError) / dt;
+        lastError = error;
+        double out = kP * error + kI * integral + kD * derivative + kF * targetRPM;
+        return Range.clip(out,-1.0,1.0);
+
+    }
 
     private FtcDashboard dashboard = FtcDashboard.getInstance();
+    Telemetry dashboardTelemetry = dashboard.getTelemetry();
     @Override
     public void init() {
         launcher = (DcMotorEx) hardwareMap.dcMotor.get("launcher");
@@ -111,8 +136,9 @@ public class catTest extends OpMode {
         telemetry.addData("Launch", "power: %.2f RPM: %5.0f %5.0f target %.0f",gamepad1.right_stick_y,RPM,vel/ticksPerRev,targetRPM);
 
         TelemetryPacket packet = new TelemetryPacket();
-        packet.put("RPM",RPM);
-        dashboard.sendTelemetryPacket(packet);
+        dashboardTelemetry.addData("Launch", "power: %.2f RPM: %5.0f %5.0f target %.0f",gamepad1.right_stick_y,RPM,vel/ticksPerRev,targetRPM);
+        dashboardTelemetry.addData("RPM",RPM);
+        dashboardTelemetry.update();
 
 
 
