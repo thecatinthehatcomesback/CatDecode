@@ -10,7 +10,7 @@ public class Update_PID extends Thread {
     public void run(){
 
         while(!isStopRequested){
-            jaws.updatePID();
+            //jaws.updatePID();
             try {
                 Thread.sleep(30);
             } catch (InterruptedException e) {

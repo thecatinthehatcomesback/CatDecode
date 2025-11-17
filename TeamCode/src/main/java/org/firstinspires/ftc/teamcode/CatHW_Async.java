@@ -104,7 +104,7 @@ public class CatHW_Async
      *
      * @param seconds that the robot's systems will be delayed.
      */
-    /*public void robotWait(double seconds) {
+   /* public void robotWait(double seconds) {
         ElapsedTime delayTimer = new ElapsedTime();
         while (opMode.opModeIsActive() && (delayTimer.seconds() < seconds)) {
             opMode.idle();

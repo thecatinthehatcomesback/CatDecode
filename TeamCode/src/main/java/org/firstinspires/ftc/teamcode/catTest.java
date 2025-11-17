@@ -118,10 +118,10 @@ public class catTest extends OpMode {
     @Override
     public void loop() {
         //launcher.setPower(gamepad1.right_stick_y);
-        if (gamepad1.dpad_up){
+        if (gamepad2.dpad_up){
             targetRPM += 1;
         }
-        if (gamepad1.dpad_down){
+        if (gamepad2.dpad_down){
             targetRPM -= 1;
         }
         if (targetRPM < 0){

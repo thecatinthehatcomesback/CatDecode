@@ -28,6 +28,7 @@
  */
 package org.firstinspires.ftc.teamcode;
 
+import com.acmerobotics.dashboard.telemetry.TelemetryPacket;
 import com.qualcomm.hardware.limelightvision.LLResult;
 import com.qualcomm.hardware.limelightvision.LLResultTypes;
 import com.qualcomm.hardware.limelightvision.LLStatus;
@@ -66,10 +67,6 @@ public class catTelop extends OpMode {
     public  catTelop(){
         robot=new CatHW_Async();
     }
-    DcMotor frontLeftDrive;
-    DcMotor frontRightDrive;
-    DcMotor backLeftDrive;
-    DcMotor backRightDrive;
 
 
     // This declares the IMU needed to get the current direction the robot is facing
@@ -79,38 +76,11 @@ public class catTelop extends OpMode {
 
     @Override
     public void init() {
-        frontLeftDrive = hardwareMap.get(DcMotor.class, "lFront");
-        frontRightDrive = hardwareMap.get(DcMotor.class, "rFront");
-        backLeftDrive = hardwareMap.get(DcMotor.class, "lRear");
-        backRightDrive = hardwareMap.get(DcMotor.class, "rRear");
 
-        // We set the left motors in reverse which is needed for drive trains where the left
-        // motors are opposite to the right ones.
-        backLeftDrive.setDirection(DcMotor.Direction.REVERSE);
-        frontLeftDrive.setDirection(DcMotor.Direction.REVERSE);
-
-        // This uses RUN_USING_ENCODER to be more accurate.   If you don't have the encoder
-        // wires, you should remove these
-        frontLeftDrive.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        frontRightDrive.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        backLeftDrive.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        backRightDrive.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-
-        imu = hardwareMap.get(IMU.class, "imu");
-        // This needs to be changed to match the orientation on your robot
-        RevHubOrientationOnRobot.LogoFacingDirection logoDirection =
-                RevHubOrientationOnRobot.LogoFacingDirection.UP;
-        RevHubOrientationOnRobot.UsbFacingDirection usbDirection =
-                RevHubOrientationOnRobot.UsbFacingDirection.FORWARD;
-
-        RevHubOrientationOnRobot orientationOnRobot = new
-                RevHubOrientationOnRobot(logoDirection, usbDirection);
-        imu.initialize(new IMU.Parameters(orientationOnRobot));
+        robot.init(hardwareMap, this);
 
         limelight = hardwareMap.get(Limelight3A.class, "limelight");
-
         telemetry.setMsTransmissionInterval(11);
-
         limelight.pipelineSwitch(0);
 
         /*
@@ -135,7 +105,7 @@ public class catTelop extends OpMode {
         } else {
             driveSpeed = 0.75;
         }
-        drive(-gamepad1.right_stick_y, gamepad1.right_stick_x, gamepad1.left_stick_x, driveSpeed);
+        robot.prowl.drive(-gamepad1.right_stick_y, gamepad1.right_stick_x, gamepad1.left_stick_x, driveSpeed);
 
         if (gamepad1.square){
             isAutoAim=true;
@@ -143,7 +113,27 @@ public class catTelop extends OpMode {
         if (Math.abs(gamepad1.left_stick_x)>0.1) {
             isAutoAim=false;
         }
-
+        if (gamepad2.circle){
+            robot.jaws.intake.setPower(1);
+        } else  {
+            robot.jaws.intake.setPower(0);
+        }
+        if (gamepad2.dpad_up){
+            robot.jaws.targetRPM += 1;
+        }
+        if (gamepad2.dpad_down){
+            robot.jaws.targetRPM -= 1;
+        }
+        if (robot.jaws.targetRPM < 0){
+            robot.jaws.targetRPM = 0;
+        }
+        if (robot.jaws.targetRPM > 6000){
+            robot.jaws.targetRPM = 6000;
+        }
+        robot.jaws.launcher.setVelocity(robot.jaws.targetRPM * robot.jaws.ticksPerRev / 60);
+        double RPM = robot.jaws.getRPM();
+        double vel = robot.jaws.launcher.getVelocity();
+        telemetry.addData("Launch", "power: %.2f RPM: %5.0f %5.0f target %.0f",gamepad1.right_stick_y,RPM,vel/robot.jaws.ticksPerRev,robot.jaws.targetRPM);
 
         LLStatus status = limelight.getStatus();
         telemetry.addData("Name", "%s",
@@ -167,10 +157,10 @@ public class catTelop extends OpMode {
             }
             if (isAutoAim){
                 if (xAngle>5){
-                    drive(0,0,1,0.3);
+                   robot.prowl.drive(0,0,1,0.3);
                 }
                 if (xAngle<-5){
-                    drive(0,0,-1,0.3);
+                    robot.prowl.drive(0,0,-1,0.3);
                 }
 
             }
@@ -187,31 +177,5 @@ public class catTelop extends OpMode {
 
 
     // Thanks to FTC16072 for sharing this code!!
-    public void drive(double forward, double right, double rotate, double driveSpeed) {
-        // This calculates the power needed for each wheel based on the amount of forward,
-        // strafe right, and rotate
-        double frontLeftPower = forward + right + rotate;
-        double frontRightPower = forward - right - rotate;
-        double backRightPower = forward + right - rotate;
-        double backLeftPower = forward - right + rotate;
 
-        double maxPower = 1.0;
-
-        // This is needed to make sure we don't pass > 1.0 to any wheel
-        // It allows us to keep all of the motors in proportion to what they should
-        // be and not get clipped
-        maxPower = Math.max(maxPower, Math.abs(frontLeftPower));
-        maxPower = Math.max(maxPower, Math.abs(frontRightPower));
-        maxPower = Math.max(maxPower, Math.abs(backRightPower));
-        maxPower = Math.max(maxPower, Math.abs(backLeftPower));
-
-        // We multiply by maxSpeed so that it can be set lower for outreaches
-        // When a young child is driving the robot, we may not want to allow full
-        // speed.
-
-        frontLeftDrive.setPower(driveSpeed * (frontLeftPower / maxPower));
-        frontRightDrive.setPower(driveSpeed * (frontRightPower / maxPower));
-        backLeftDrive.setPower(driveSpeed * (backLeftPower / maxPower));
-        backRightDrive.setPower(driveSpeed * (backRightPower / maxPower));
-    }
 }

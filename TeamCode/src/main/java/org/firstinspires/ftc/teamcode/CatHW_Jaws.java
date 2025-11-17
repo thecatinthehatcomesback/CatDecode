@@ -4,6 +4,7 @@ package org.firstinspires.ftc.teamcode;
 import android.util.Log;
 
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
@@ -26,33 +27,30 @@ public class CatHW_Jaws extends CatHW_Subsystem
 
     // Motors: //
 
-    public DcMotor armMotor = null;
-    public DcMotor armExtend = null;
-    public DcMotor launcher;
-   public Servo gripper = null;
-    public Servo wrist = null;
+    public DcMotor intake = null;
+    public DcMotorEx launcher;
 
     public ElapsedTime liftTime = null;
     public ElapsedTime pidTimer = null;
     public int target;
     //values for pid
-    double kP = 0.002;
-    double kI = 0.0;
-    double kD = 0.0003;
-    double feedForword = 0.3;
+    public static final int ticksPerRev=28;
+    private int lastPos = 0;
 
-    double lastError;
+    public static double kP = 0.0008;
+    public static double kI = 0.0;
+    public static double kD = 0.0001;
+    public static double kF = 0.0;
+    public static double targetRPM;
+    private double integral = 0;
+    private double lastError = 0;
+
+    //double lastError;
     double lastTime;
     private static final int TICKS_PER_REV = 112;
 
 
     public Update_PID ourThread = null;
-    private static final double ticksPerRev = (3.61*3.61*5.23*28);
-
-    private static final double ticksPerDegree = ticksPerRev/360;
-    private static final double startAngle=-12;
-    private static final double maxPower= 0.6;
-    public static boolean didAuto = false;
 
     int launchLastPosition;
     double launchLastTime;
@@ -74,23 +72,35 @@ public class CatHW_Jaws extends CatHW_Subsystem
         // Define and initialize motors: /armMotor/
 
 
-        launcher=hwMap.dcMotor.get("launcher");
+        launcher=(DcMotorEx) hwMap.dcMotor.get("launcher");
         launcher.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        //launchLastPosition = launcher.getCurrentPosition();
-        //launchLastTime = timer.seconds();
+        intake=hwMap.dcMotor.get("intake");
+        intake.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
-
-
+        launcher.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        lastPos = launcher.getCurrentPosition();
+        lastTime = timer.seconds();
+        targetRPM = 0;
 
         liftTime = new ElapsedTime();
         pidTimer = new ElapsedTime();
 
-
-
         ourThread = new Update_PID(this);
         ourThread.start();
     }
-
+    public double getRPM(){
+        int currentPos = launcher.getCurrentPosition();
+        double currentTime = timer.seconds();
+        int deltaTicks = currentPos - lastPos;
+        double deltaTime = currentTime - lastTime;
+        if (deltaTime <= 0) return 0;
+        double rev = (double) deltaTicks/ticksPerRev;
+        double RPM = (rev/deltaTime) * 60;
+        //telemetry.addData("Launch", "dT = %4.3f dTick %4d\n",deltaTime,deltaTicks);
+        lastPos = currentPos;
+        lastTime = currentTime;
+        return RPM;
+    }
 
 
     //----------------------------------------------------------------------------------------------e
@@ -117,34 +127,6 @@ public class CatHW_Jaws extends CatHW_Subsystem
 
         return rpm;
     }*/
-
-    public void updatePID(){
-        int current = armMotor.getCurrentPosition();
-        double error = target-current;
-        double angle = (current / ticksPerDegree)+startAngle;
-        double derivative = (error - lastError) / (pidTimer.seconds()-lastTime);
-        double power = 0;
-        if (target/ticksPerDegree > 0) {
-            power = error * kP + derivative * kD + Math.cos(Math.toRadians(angle)) * feedForword;
-        } else {
-            power = error * kP + derivative * kD ;
-        }
-        power = Math.min(power,maxPower);
-        power = Math.max(power,-maxPower);
-        armMotor.setPower(power);
-        Log.d("catbot",String.format("arm err %.3f angle %.3f power %.3f der %.3f",error,angle,power,derivative));
-        lastError=error;
-        lastTime = pidTimer.seconds();
-
-        if (Math.abs(armExtend.getCurrentPosition()-armExtend.getTargetPosition())<20){
-          armExtend.setPower(0);
-        }
-        //limit extension distence
-        if ((angle<45) && (armExtend.getTargetPosition()>2625)){
-            armExtend.setTargetPosition(2100);
-        }
-    }
-
 
 
     //----------------------------------------------------------------------------------------------

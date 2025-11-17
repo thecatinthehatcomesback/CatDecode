@@ -5,6 +5,7 @@ import android.util.Log;
 import com.acmerobotics.roadrunner.geometry.Pose2d;
 import com.qualcomm.hardware.sparkfun.SparkFunOTOS;
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
@@ -29,16 +30,21 @@ public class CatProwl extends CatHW_Subsystem {
 
     public void init(){
 
-        leftFrontMotor = hwMap.dcMotor.get("leftFront");
-        rightFrontMotor = hwMap.dcMotor.get("rightFront");
-        leftRearMotor = hwMap.dcMotor.get("leftRear");
-        rightRearMotor = hwMap.dcMotor.get("rightRear");
-
+        leftFrontMotor = hwMap.get(DcMotor.class, "lFront");
+        rightFrontMotor = hwMap.get(DcMotor.class, "rFront");
+        leftRearMotor = hwMap.get(DcMotor.class, "lRear");
+        rightRearMotor = hwMap.get(DcMotor.class, "rRear");
         // Define motor directions: //
         leftFrontMotor.setDirection(DcMotor.Direction.FORWARD);
-        leftRearMotor.setDirection(DcMotor.Direction.FORWARD);
-        rightFrontMotor.setDirection(DcMotor.Direction.REVERSE);
-        rightRearMotor.setDirection(DcMotor.Direction.REVERSE);
+        leftRearMotor.setDirection(DcMotor.Direction.REVERSE);
+        rightFrontMotor.setDirection(DcMotor.Direction.FORWARD);
+        rightRearMotor.setDirection(DcMotor.Direction.FORWARD);
+
+        leftFrontMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        leftRearMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        rightFrontMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        rightRearMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+
 
         myOtos = hwMap.get(SparkFunOTOS.class, "sensor_otos");
         SparkFunOTOS.Pose2D pos = myOtos.getPosition();
@@ -197,7 +203,33 @@ public class CatProwl extends CatHW_Subsystem {
         leftRearMotor.setPower(leftBack);
         rightRearMotor.setPower(rightBack);
     }
+    public void drive(double forward, double right, double rotate, double driveSpeed) {
+        // This calculates the power needed for each wheel based on the amount of forward,
+        // strafe right, and rotate
+        double frontLeftPower = forward + right + rotate;
+        double frontRightPower = forward - right - rotate;
+        double backRightPower = forward + right - rotate;
+        double backLeftPower = forward - right + rotate;
 
+        double maxPower = 1.0;
+
+        // This is needed to make sure we don't pass > 1.0 to any wheel
+        // It allows us to keep all of the motors in proportion to what they should
+        // be and not get clipped
+        maxPower = Math.max(maxPower, Math.abs(frontLeftPower));
+        maxPower = Math.max(maxPower, Math.abs(frontRightPower));
+        maxPower = Math.max(maxPower, Math.abs(backRightPower));
+        maxPower = Math.max(maxPower, Math.abs(backLeftPower));
+
+        // We multiply by maxSpeed so that it can be set lower for outreaches
+        // When a young child is driving the robot, we may not want to allow full
+        // speed.
+
+        leftFrontMotor.setPower(driveSpeed * (frontLeftPower / maxPower));
+        rightFrontMotor.setPower(driveSpeed * (frontRightPower / maxPower));
+        leftRearMotor.setPower(driveSpeed * (backLeftPower / maxPower));
+        rightRearMotor.setPower(driveSpeed * (backRightPower / maxPower));
+    }
     public double findScalor(double leftFrontValue, double rightFrontValue,
                              double leftBackValue, double rightBackValue) {
         /*
