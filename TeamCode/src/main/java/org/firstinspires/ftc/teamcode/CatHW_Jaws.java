@@ -30,30 +30,14 @@ public class CatHW_Jaws extends CatHW_Subsystem
     public DcMotor intake = null;
     public DcMotorEx launcher;
 
+    public DcMotor transfer;
     public ElapsedTime liftTime = null;
     public ElapsedTime pidTimer = null;
-    public int target;
     //values for pid
     public static final int ticksPerRev=28;
     private int lastPos = 0;
-
-    public static double kP = 0.0008;
-    public static double kI = 0.0;
-    public static double kD = 0.0001;
-    public static double kF = 0.0;
     public static double targetRPM;
-    private double integral = 0;
-    private double lastError = 0;
-
-    //double lastError;
     double lastTime;
-    private static final int TICKS_PER_REV = 112;
-
-
-    public Update_PID ourThread = null;
-
-    int launchLastPosition;
-    double launchLastTime;
     // Timers: //
     private ElapsedTime timer = new ElapsedTime();
 
@@ -67,8 +51,6 @@ public class CatHW_Jaws extends CatHW_Subsystem
 
     /* Initialize standard Hardware interfaces */
     public void init() {
-
-        target=0;
         // Define and initialize motors: /armMotor/
 
 
@@ -82,17 +64,39 @@ public class CatHW_Jaws extends CatHW_Subsystem
         lastTime = timer.seconds();
         targetRPM = 0;
 
+        transfer = hwMap.dcMotor.get("transfer");
+        transfer.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+
         liftTime = new ElapsedTime();
         pidTimer = new ElapsedTime();
+    }
 
-        ourThread = new Update_PID(this);
-        ourThread.start();
+    public void transfer(double speed){
+        transfer.setPower(speed);
+    }
+    public void bumpRPM(){
+        targetRPM += 1;
+        if (targetRPM > 6000){
+            targetRPM = 6000;
+        }
+        setVelocity();
+    }
+    public void decRPM(){
+        targetRPM -= 1;
+        if (targetRPM < 0){
+            targetRPM = 0;
+        }
+        setVelocity();
+    }
+    public void setVelocity() {
+        launcher.setVelocity(targetRPM * ticksPerRev / 60);
     }
     public double getRPM(){
         int currentPos = launcher.getCurrentPosition();
         double currentTime = timer.seconds();
         int deltaTicks = currentPos - lastPos;
         double deltaTime = currentTime - lastTime;
+        if (deltaTime < 0.05) return 0;
         if (deltaTime <= 0) return 0;
         double rev = (double) deltaTicks/ticksPerRev;
         double RPM = (rev/deltaTime) * 60;
@@ -109,24 +113,7 @@ public class CatHW_Jaws extends CatHW_Subsystem
     public void launch(double power){
         launcher.setPower(power);
     }
-    /*public double launchRPM() {
-        int currentPosition = launcher.getCurrentPosition();
-        double currentTime = timer.seconds();
 
-        int deltaTicks = currentPosition - launchLastPosition;
-        double deltaTime = currentTime - launchLastTime;
-
-        if (deltaTime <= 0) return 0;
-
-        double revolutions = (double) deltaTicks / TICKS_PER_REV;
-        double rpm = (revolutions / deltaTime) * 60.0;
-
-        // Update for next loop
-        launchLastPosition = currentPosition;
-        launchLastTime = currentTime;
-
-        return rpm;
-    }*/
 
 
     //----------------------------------------------------------------------------------------------

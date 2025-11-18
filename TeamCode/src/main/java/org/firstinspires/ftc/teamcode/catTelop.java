@@ -113,35 +113,38 @@ public class catTelop extends OpMode {
         if (Math.abs(gamepad1.left_stick_x)>0.1) {
             isAutoAim=false;
         }
+        if (gamepad2.left_bumper) {
+            robot.jaws.transfer (0.5);
+
+        } else if (gamepad2.right_bumper) {
+            robot.jaws.transfer(-0.5);
+        } else {
+            robot.jaws.transfer (0);
+        }
         if (gamepad2.circle){
             robot.jaws.intake.setPower(1);
         } else  {
             robot.jaws.intake.setPower(0);
         }
         if (gamepad2.dpad_up){
-            robot.jaws.targetRPM += 1;
+            robot.jaws.bumpRPM();
         }
         if (gamepad2.dpad_down){
-            robot.jaws.targetRPM -= 1;
+            robot.jaws.decRPM();
         }
-        if (robot.jaws.targetRPM < 0){
-            robot.jaws.targetRPM = 0;
-        }
-        if (robot.jaws.targetRPM > 6000){
-            robot.jaws.targetRPM = 6000;
-        }
-        robot.jaws.launcher.setVelocity(robot.jaws.targetRPM * robot.jaws.ticksPerRev / 60);
-        double RPM = robot.jaws.getRPM();
-        double vel = robot.jaws.launcher.getVelocity();
-        telemetry.addData("Launch", "power: %.2f RPM: %5.0f %5.0f target %.0f",gamepad1.right_stick_y,RPM,vel/robot.jaws.ticksPerRev,robot.jaws.targetRPM);
-
         LLStatus status = limelight.getStatus();
-        telemetry.addData("Name", "%s",
-                status.getName());
-        telemetry.addData("LL", "Temp: %.1fC, CPU: %.1f%%, FPS: %d",
-                status.getTemp(), status.getCpu(),(int)status.getFps());
-        telemetry.addData("Pipeline", "Index: %d, Type: %s",
-                status.getPipelineIndex(), status.getPipelineType());
+        double RPM = robot.jaws.getRPM();
+        if (RPM > 1) {
+            telemetry.addData("Launch", " RPM: %5.0f target %.0f",  RPM, robot.jaws.targetRPM);
+
+
+            telemetry.addData("Name", "%s",
+                    status.getName());
+            telemetry.addData("LL", "Temp: %.1fC, CPU: %.1f%%, FPS: %d",
+                    status.getTemp(), status.getCpu(), (int) status.getFps());
+            telemetry.addData("Pipeline", "Index: %d, Type: %s",
+                    status.getPipelineIndex(), status.getPipelineType());
+        }
         LLResult result = limelight.getLatestResult();
         if (result.isValid()) {
             double xAngle=0;
@@ -165,11 +168,6 @@ public class catTelop extends OpMode {
 
             }
         }
-
-        robot.jaws.launch(gamepad1.right_trigger);
-
-        //telemetry.addData("Launch", "power: %.2f rpm: %.1f",gamepad1.right_trigger, robot.jaws.launchRPM());
-
     }
 
 
