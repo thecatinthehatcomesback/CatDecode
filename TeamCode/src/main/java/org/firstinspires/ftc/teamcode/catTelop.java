@@ -35,6 +35,7 @@ import com.qualcomm.hardware.limelightvision.LLStatus;
 import com.qualcomm.hardware.limelightvision.Limelight3A;
 import com.qualcomm.hardware.rev.RevHubOrientationOnRobot;
 import com.qualcomm.robotcore.eventloop.opmode.Disabled;
+import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
@@ -61,13 +62,13 @@ import java.util.List;
  */
 @TeleOp(name = "Robot: Field Relative Mecanum Drive", group = "Robot")
 
-public class catTelop extends OpMode {
+public class catTelop extends LinearOpMode {
+
     // This declares the four motors needed
     CatHW_Async robot;
     public  catTelop(){
         robot=new CatHW_Async();
     }
-
 
     // This declares the IMU needed to get the current direction the robot is facing
     IMU imu;
@@ -75,8 +76,7 @@ public class catTelop extends OpMode {
     boolean isAutoAim;
 
     @Override
-    public void init() {
-
+    public void runOpMode() {
         robot.init(hardwareMap, this);
 
         limelight = hardwareMap.get(Limelight3A.class, "limelight");
@@ -89,83 +89,83 @@ public class catTelop extends OpMode {
         limelight.start();
 
         isAutoAim=false;
-    }
 
-    @Override
-    public void loop() {
+        waitForStart();
 
-        // If you press the left bumper, you get a drive from the point of view of the robot
-        // (much like driving an RC vehicle)
-        double driveSpeed;
+        while (!isStopRequested()) {
+            // If you press the left bumper, you get a drive from the point of view of the robot
+            // (much like driving an RC vehicle)
+            double driveSpeed;
 
-        if (gamepad1.right_trigger > .1 || gamepad1.left_trigger > .1) {
-            driveSpeed = 1.00;
-        } else if (gamepad1.right_bumper || gamepad1.left_bumper) {
-            driveSpeed = 0.3;
-        } else {
-            driveSpeed = 0.75;
-        }
-        robot.prowl.drive(-gamepad1.right_stick_y, gamepad1.right_stick_x, gamepad1.left_stick_x, driveSpeed);
-
-        if (gamepad1.square){
-            isAutoAim=true;
-        }
-        if (Math.abs(gamepad1.left_stick_x)>0.1) {
-            isAutoAim=false;
-        }
-        if (gamepad2.left_bumper) {
-            robot.jaws.transfer (0.5);
-
-        } else if (gamepad2.right_bumper) {
-            robot.jaws.transfer(-0.5);
-        } else {
-            robot.jaws.transfer (0);
-        }
-        if (gamepad2.circle){
-            robot.jaws.intake.setPower(1);
-        } else  {
-            robot.jaws.intake.setPower(0);
-        }
-        if (gamepad2.dpad_up){
-            robot.jaws.bumpRPM();
-        }
-        if (gamepad2.dpad_down){
-            robot.jaws.decRPM();
-        }
-        LLStatus status = limelight.getStatus();
-        double RPM = robot.jaws.getRPM();
-        if (RPM > 1) {
-            telemetry.addData("Launch", " RPM: %5.0f target %.0f",  RPM, robot.jaws.targetRPM);
-
-
-            telemetry.addData("Name", "%s",
-                    status.getName());
-            telemetry.addData("LL", "Temp: %.1fC, CPU: %.1f%%, FPS: %d",
-                    status.getTemp(), status.getCpu(), (int) status.getFps());
-            telemetry.addData("Pipeline", "Index: %d, Type: %s",
-                    status.getPipelineIndex(), status.getPipelineType());
-        }
-        LLResult result = limelight.getLatestResult();
-        if (result.isValid()) {
-            double xAngle=0;
-
-            // Access fiducial results
-            List<LLResultTypes.FiducialResult> fiducialResults = result.getFiducialResults();
-            for (LLResultTypes.FiducialResult fr : fiducialResults) {
-                telemetry.addData("Fiducial", "ID: %d, Family: %s, X: %.2f, Y: %.2f",
-                        fr.getFiducialId(), fr.getFamily(), fr.getTargetXDegrees(), fr.getTargetYDegrees());
-                if ((fr.getFiducialId()==20)||(fr.getFiducialId()==24)){
-                    xAngle=fr.getTargetXDegrees();
-                }
+            if (gamepad1.right_trigger > .1 || gamepad1.left_trigger > .1) {
+                driveSpeed = 1.00;
+            } else if (gamepad1.right_bumper || gamepad1.left_bumper) {
+                driveSpeed = 0.3;
+            } else {
+                driveSpeed = 0.75;
             }
-            if (isAutoAim){
-                if (xAngle>5){
-                   robot.prowl.drive(0,0,1,0.3);
-                }
-                if (xAngle<-5){
-                    robot.prowl.drive(0,0,-1,0.3);
-                }
+            robot.prowl.drive(-gamepad1.right_stick_y, gamepad1.right_stick_x, gamepad1.left_stick_x, driveSpeed);
 
+            if (gamepad1.square) {
+                isAutoAim = true;
+            }
+            if (Math.abs(gamepad1.left_stick_x) > 0.1) {
+                isAutoAim = false;
+            }
+            if (gamepad2.left_bumper) {
+                robot.jaws.transfer(0.5);
+
+            } else if (gamepad2.right_bumper) {
+                robot.jaws.transfer(-0.5);
+            } else {
+                robot.jaws.transfer(0);
+            }
+            if (gamepad2.circle) {
+                robot.jaws.intake.setPower(1);
+            } else {
+                robot.jaws.intake.setPower(0);
+            }
+            if (gamepad2.dpad_up) {
+                robot.jaws.bumpRPM();
+            }
+            if (gamepad2.dpad_down) {
+                robot.jaws.decRPM();
+            }
+            LLStatus status = limelight.getStatus();
+            double RPM = robot.jaws.getRPM();
+            if (RPM > 1) {
+                telemetry.addData("Launch", " RPM: %5.0f target %.0f", RPM, robot.jaws.targetRPM);
+
+
+                telemetry.addData("Name", "%s",
+                        status.getName());
+                telemetry.addData("LL", "Temp: %.1fC, CPU: %.1f%%, FPS: %d",
+                        status.getTemp(), status.getCpu(), (int) status.getFps());
+                telemetry.addData("Pipeline", "Index: %d, Type: %s",
+                        status.getPipelineIndex(), status.getPipelineType());
+            }
+            LLResult result = limelight.getLatestResult();
+            if (result.isValid()) {
+                double xAngle = 0;
+
+                // Access fiducial results
+                List<LLResultTypes.FiducialResult> fiducialResults = result.getFiducialResults();
+                for (LLResultTypes.FiducialResult fr : fiducialResults) {
+                    telemetry.addData("Fiducial", "ID: %d, Family: %s, X: %.2f, Y: %.2f",
+                            fr.getFiducialId(), fr.getFamily(), fr.getTargetXDegrees(), fr.getTargetYDegrees());
+                    if ((fr.getFiducialId() == 20) || (fr.getFiducialId() == 24)) {
+                        xAngle = fr.getTargetXDegrees();
+                    }
+                }
+                if (isAutoAim) {
+                    if (xAngle > 5) {
+                        robot.prowl.drive(0, 0, 1, 0.3);
+                    }
+                    if (xAngle < -5) {
+                        robot.prowl.drive(0, 0, -1, 0.3);
+                    }
+
+                }
             }
         }
     }

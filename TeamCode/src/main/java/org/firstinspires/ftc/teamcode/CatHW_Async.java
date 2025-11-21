@@ -26,13 +26,13 @@ public class CatHW_Async
      */
 
 
-    public static boolean isLeftAlliance = true;
+    public static boolean isCloseStart = true;
     public static boolean isRedAlliance = false;
 
 
     /** Local OpMode members. */
     HardwareMap hwMap = null;
-    OpMode opMode = null;
+    LinearOpMode opMode = null;
     private static CatHW_Async myInstance = null;
 
     /** Other Hardware subSystems */
@@ -60,7 +60,7 @@ public class CatHW_Async
      * @param theOpMode for Linear OpMode usage.
      * @throws InterruptedException in case of error.
      */
-    public void init(HardwareMap ahwMap, OpMode theOpMode){
+    public void init(HardwareMap ahwMap, LinearOpMode theOpMode){
 
         // Save a reference to hardware map and opMode
         hwMap = ahwMap;
@@ -104,11 +104,11 @@ public class CatHW_Async
      *
      * @param seconds that the robot's systems will be delayed.
      */
-   /* public void robotWait(double seconds) {
+   public void robotWait(double seconds) {
         ElapsedTime delayTimer = new ElapsedTime();
         while (opMode.opModeIsActive() && (delayTimer.seconds() < seconds)) {
             opMode.idle();
 
         }
-    }*/
+    }
 }
