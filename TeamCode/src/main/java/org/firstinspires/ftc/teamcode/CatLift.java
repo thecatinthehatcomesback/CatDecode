@@ -27,7 +27,7 @@ public class CatLift extends CatHW_Subsystem {
     }
 
    public  void  goUp(){
-        liftMotor.setPower(.5);
+        liftMotor.setPower(1);
    }
 
     public  void  stopLift(){

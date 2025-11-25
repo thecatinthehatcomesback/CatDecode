@@ -53,7 +53,7 @@ public class MainAuto extends LinearOpMode {
         Telemetry dashboardTelemetry = dashboard.getTelemetry();
 
         robot.init(hardwareMap, this);
-
+        robot.prowl.telemetry = telemetry;
 
 
         /*

@@ -4,12 +4,15 @@ import android.util.Log;
 
 import com.acmerobotics.roadrunner.geometry.Pose2d;
 import com.qualcomm.hardware.sparkfun.SparkFunOTOS;
+import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
+import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
+import org.firstinspires.ftc.robotcore.internal.opmode.TelemetryImpl;
 
 public class CatProwl extends CatHW_Subsystem {
     public CatProwl(CatHW_Async mainHardware){
@@ -27,6 +30,8 @@ public class CatProwl extends CatHW_Subsystem {
     SparkFunOTOS.Pose2D lastPos;
     double driveSpeed;
     int wrap;
+    public Telemetry telemetry;
+
 
     public void init(){
 
@@ -112,7 +117,7 @@ public class CatProwl extends CatHW_Subsystem {
         // but can also be used to recover from some rare tracking errors
         myOtos.resetTracking();
 
-        // After resetting the tracking, the OTOS will report that the robot is at
+        // After resetting the tracking, the OTOS will report that the robot is at1
         // the origin. If your robot does not start at the origin, or you have
         // another source of location information (eg. vision odometry), you can set
         // the OTOS location to match and it will continue to track from there.
@@ -146,6 +151,10 @@ public class CatProwl extends CatHW_Subsystem {
 
 
         SparkFunOTOS.Pose2D currentPos = myOtos.getPosition();
+
+        telemetry.addData("pos","x:%4.1f y:%4.1f h:%4.1f",currentPos.x,currentPos.y,currentPos.h);
+        telemetry.update();
+
         if ((currentPos.h>90)&&(lastPos.h<-90)){
             wrap=wrap-1;
         }
@@ -183,7 +192,6 @@ public class CatProwl extends CatHW_Subsystem {
             setDrivePowers(0,0,0,0);
             isDone=true;
         }
-
     }
     public void driveto(double x,double y,double theta){
         driveto(x,y,theta,0.5,2.0);

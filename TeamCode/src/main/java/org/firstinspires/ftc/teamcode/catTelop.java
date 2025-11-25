@@ -34,6 +34,7 @@ import com.qualcomm.hardware.limelightvision.LLResultTypes;
 import com.qualcomm.hardware.limelightvision.LLStatus;
 import com.qualcomm.hardware.limelightvision.Limelight3A;
 import com.qualcomm.hardware.rev.RevHubOrientationOnRobot;
+import com.qualcomm.hardware.sparkfun.SparkFunOTOS;
 import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
@@ -66,6 +67,7 @@ public class catTelop extends LinearOpMode {
 
     // This declares the four motors needed
     CatHW_Async robot;
+    CatLift lift;
     public  catTelop(){
         robot=new CatHW_Async();
     }
@@ -75,9 +77,14 @@ public class catTelop extends LinearOpMode {
     private Limelight3A limelight;
     boolean isAutoAim;
 
+    double RPMs;
+
+
     @Override
     public void runOpMode() {
         robot.init(hardwareMap, this);
+        lift = new CatLift(robot);
+        lift.init();
 
         limelight = hardwareMap.get(Limelight3A.class, "limelight");
         telemetry.setMsTransmissionInterval(11);
@@ -131,19 +138,34 @@ public class catTelop extends LinearOpMode {
             if (gamepad2.dpad_down) {
                 robot.jaws.decRPM();
             }
-            LLStatus status = limelight.getStatus();
-            double RPM = robot.jaws.getRPM();
-            if (RPM > 1) {
-                telemetry.addData("Launch", " RPM: %5.0f target %.0f", RPM, robot.jaws.targetRPM);
 
-
-                telemetry.addData("Name", "%s",
-                        status.getName());
-                telemetry.addData("LL", "Temp: %.1fC, CPU: %.1f%%, FPS: %d",
-                        status.getTemp(), status.getCpu(), (int) status.getFps());
-                telemetry.addData("Pipeline", "Index: %d, Type: %s",
-                        status.getPipelineIndex(), status.getPipelineType());
+            if (gamepad2.dpad_left) {
+                lift.goUp();
+            } else {
+                lift.stopLift();
             }
+
+            LLStatus status = limelight.getStatus();
+            double curRPM = robot.jaws.getRPM();
+            if (curRPM>0){
+                RPMs = curRPM;
+            }
+
+            SparkFunOTOS.Pose2D currentPos = robot.prowl.myOtos.getPosition();
+
+            telemetry.addData("pos", "x: %4.1f y: %4.1f rot: %4.1f",currentPos.x,currentPos.y,currentPos.h);
+
+            telemetry.addData("Launch", " RPM: %5.0f target %.0f", RPMs, CatHW_Jaws.targetRPM);
+
+
+            telemetry.addData("Name", "%s",
+                        status.getName());
+            telemetry.addData("LL", "Temp: %.1fC, CPU: %.1f%%, FPS: %d",
+                        status.getTemp(), status.getCpu(), (int) status.getFps());
+            telemetry.addData("Pipeline", "Index: %d, Type: %s",
+                        status.getPipelineIndex(), status.getPipelineType());
+            telemetry.update();
+
             LLResult result = limelight.getLatestResult();
             if (result.isValid()) {
                 double xAngle = 0;
