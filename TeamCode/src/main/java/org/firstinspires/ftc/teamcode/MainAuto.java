@@ -133,7 +133,7 @@ public class MainAuto extends LinearOpMode {
             if (robot.isCloseStart) {
                 // closeBlue();
             } else {
-                // farBlue();
+                farBlue();
             }
         }
 
@@ -145,24 +145,69 @@ public class MainAuto extends LinearOpMode {
 
     }
     private void farRed(){
-        robot.prowl.driveto(0,15,0,0.4,5);
-
+        robot.launch.setTargetRPM(1900);
+        robot.prowl.driveto(3,10,-27,0.4,5);
+        robot.robotWait(1);
+        robot.jaws.transfer(.3);
+        robot.jaws.intake.setPower(1);
         robot.robotWait(5);
-
-    }
-    private void closeRed() {
-
-       // robot.jaws.setArmAngle(90);
-        robot.prowl.driveto(0, 5, 0, 0.5, 5);
-        //robot.jaws.setExtendLong();
-        //robot.jaws.upWrist();
-        robot.robotWait(2.5);
-        //robot.jaws.downWrist();
-        //robot.jaws.setArmAngle(85);
-        robot.robotWait(.75);
-        //scored in high basket
-        //robot.prowl.driveto(3, 3, 0, 0.5, 5);
+        robot.jaws.intake.setPower(0);
+        robot.jaws.transfer(0);
+        //go get 1 stack
+        robot.prowl.driveto(5,26,-90,0.4,5);
+        robot.jaws.intake.setPower(1);
+        robot.jaws.transfer(.3);
+        robot.prowl.driveto(50,26,-90,.2,5);
+        robot.jaws.transfer(0);
         robot.robotWait(.5);
+        robot.prowl.driveto(7,15,-27,0.4,5);
+        robot.robotWait(.5);
+        robot.jaws.transfer(.3);
+        robot.robotWait(5);
+        //get second stack
+        robot.prowl.driveto(5,50,-90,0.4,5);
+        robot.jaws.intake.setPower(1);
+        robot.jaws.transfer(.3);
+        robot.prowl.driveto(50,50,-90,.2,5);
+        robot.jaws.transfer(0);
+        robot.robotWait(.5);
+        robot.prowl.driveto(7,15,-27,0.4,5);
+        robot.robotWait(.5);
+        robot.jaws.transfer(.3);
+        robot.robotWait(5);
+    }
+    private void farBlue() {
+        robot.launch.setTargetRPM(1900);
+        robot.prowl.driveto(-3,10,27,0.4,5);
+        robot.robotWait(1);
+        robot.jaws.transfer(.3);
+        robot.jaws.intake.setPower(1);
+        robot.robotWait(5);
+        robot.jaws.intake.setPower(0);
+        robot.jaws.transfer(0);
+
+        //go get 1 stack
+        robot.prowl.driveto(-5,26,90,0.4,5);
+        robot.jaws.intake.setPower(1);
+        robot.jaws.transfer(.3);
+        robot.prowl.driveto(-50,26,90,.2,5);
+        robot.jaws.transfer(0);
+        robot.robotWait(.5);
+        robot.prowl.driveto(-7,15,27,0.4,5);
+        robot.robotWait(.5);
+        robot.jaws.transfer(.3);
+        robot.robotWait(5);
+        //go get stack 2
+        robot.prowl.driveto(-5,50,90,0.4,5);
+        robot.jaws.intake.setPower(1);
+        robot.jaws.transfer(.3);
+        robot.prowl.driveto(-50,50,90,.2,5);
+        robot.jaws.transfer(0);
+        robot.robotWait(.5);
+        robot.prowl.driveto(-7,15,27,0.4,5);
+        robot.robotWait(.5);
+        robot.jaws.transfer(.3);
+        robot.robotWait(5);
 
     }
 }

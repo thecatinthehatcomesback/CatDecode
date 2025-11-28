@@ -133,10 +133,10 @@ public class catTelop extends LinearOpMode {
                 robot.jaws.intake.setPower(0);
             }
             if (gamepad2.dpad_up) {
-                robot.jaws.bumpRPM();
+                robot.launch.setTargetRPM(robot.launch.getRPM()+50);
             }
             if (gamepad2.dpad_down) {
-                robot.jaws.decRPM();
+                robot.launch.setTargetRPM(robot.launch.getRPM()-50);
             }
 
             if (gamepad2.dpad_left) {
@@ -155,7 +155,7 @@ public class catTelop extends LinearOpMode {
 
             telemetry.addData("pos", "x: %4.1f y: %4.1f rot: %4.1f",currentPos.x,currentPos.y,currentPos.h);
 
-            telemetry.addData("Launch", " RPM: %5.0f target %.0f", RPMs, CatHW_Jaws.targetRPM);
+            telemetry.addData("Launch", " RPM: %5.0f target %.0f", RPMs, robot.launch.targetRPM);
 
 
             telemetry.addData("Name", "%s",
