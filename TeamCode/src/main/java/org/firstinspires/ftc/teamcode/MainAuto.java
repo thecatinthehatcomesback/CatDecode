@@ -145,7 +145,7 @@ public class MainAuto extends LinearOpMode {
 
     }
     private void farRed(){
-        robot.launch.setTargetRPM(1900);
+        robot.launch.setTargetRPM(2100);
         robot.prowl.driveto(3,10,-27,0.4,5);
         robot.robotWait(1);
         robot.jaws.transfer(.3);
@@ -156,18 +156,19 @@ public class MainAuto extends LinearOpMode {
         //go get 1 stack
         robot.prowl.driveto(5,26,-90,0.4,5);
         robot.jaws.intake.setPower(1);
-        robot.jaws.transfer(.3);
+        robot.jaws.transfer(.2);
         robot.prowl.driveto(50,26,-90,.2,5);
         robot.jaws.transfer(0);
         robot.robotWait(.5);
         robot.prowl.driveto(7,15,-27,0.4,5);
-        robot.robotWait(.5);
+        robot.launch.setTargetRPM(2200);
+        robot.robotWait(2);
         robot.jaws.transfer(.3);
         robot.robotWait(5);
         //get second stack
         robot.prowl.driveto(5,50,-90,0.4,5);
         robot.jaws.intake.setPower(1);
-        robot.jaws.transfer(.3);
+        robot.jaws.transfer(.1);
         robot.prowl.driveto(50,50,-90,.2,5);
         robot.jaws.transfer(0);
         robot.robotWait(.5);
@@ -177,7 +178,7 @@ public class MainAuto extends LinearOpMode {
         robot.robotWait(5);
     }
     private void farBlue() {
-        robot.launch.setTargetRPM(1900);
+        robot.launch.setTargetRPM(2000);
         robot.prowl.driveto(-3,10,27,0.4,5);
         robot.robotWait(1);
         robot.jaws.transfer(.3);
