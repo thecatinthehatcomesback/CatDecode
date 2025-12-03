@@ -1,8 +1,11 @@
 package org.firstinspires.ftc.teamcode;
 
+import com.acmerobotics.dashboard.FtcDashboard;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.util.ElapsedTime;
 import com.qualcomm.robotcore.util.Range;
+
+import org.firstinspires.ftc.robotcore.external.Telemetry;
 
 public class CatHW_Launcher {
 
@@ -12,7 +15,9 @@ public class CatHW_Launcher {
 
     private ElapsedTime timer = new ElapsedTime();
 
+    private FtcDashboard dashboard;
 
+    private Telemetry dashTel;
     private int lastPos = 0;
     private double lastTime = 0;
 
@@ -50,6 +55,14 @@ public class CatHW_Launcher {
         lastTime = timer.seconds();
         targetRPM = 0;
         pidTimer.reset();
+
+        dashboard  = FtcDashboard.getInstance();
+        dashTel = dashboard.getTelemetry();
+
+        dashTel.addData("rpm",0);
+        dashTel.addData("pow", 0);
+        dashTel.update();
+
     }
 
     public void resetPID() {
@@ -116,6 +129,10 @@ public class CatHW_Launcher {
         double rpm = getRPM();
         double power = updatePID(rpm);
         launcher.setPower(power);
+
+        dashTel.addData("rpm",rpm);
+        dashTel.addData("pow", power);
+        dashTel.update();
     }
 
     public void setTargetRPM(double rpm) {
