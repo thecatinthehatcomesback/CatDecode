@@ -146,7 +146,7 @@ public class MainAuto extends LinearOpMode {
             }
         } else {
             if (robot.isCloseStart) {
-                // closeBlue();
+                 closeBlue();
             } else {
                 farBlue();
             }
@@ -162,8 +162,8 @@ public class MainAuto extends LinearOpMode {
         int i;
         robot.jaws.intake.setPower(1);
         for(i = 0;i < 3;i++){
-            robot.jaws.transfer(.3);
-            robot.robotWait(1.5);
+            robot.jaws.transfer(.4);
+            robot.robotWait(1.2);
             robot.jaws.transfer(0);
             robot.robotWait(.5);
         }
@@ -199,33 +199,25 @@ public class MainAuto extends LinearOpMode {
         robot.launch.setTargetRPM(2000);
         robot.prowl.driveto(-3,8,24,0.4,5);
         robot.robotWait(1);
-        robot.jaws.transfer(.3);
-        robot.jaws.intake.setPower(1);
-        robot.robotWait(5);
-        robot.jaws.intake.setPower(0);
-        robot.jaws.transfer(0);
+        shoot();
+
         //go get 1 stack
-        robot.prowl.driveto(-5,26,90,0.4,5);
+        robot.prowl.driveto(-12,26,90,0.6,5);
         robot.jaws.intake.setPower(1);
         robot.jaws.transfer(.1);
         robot.prowl.driveto(-50,26,90,.2,5);
         robot.jaws.transfer(0);
-        robot.robotWait(.5);
-        robot.prowl.driveto(-7,15,23,0.4,5);
-        robot.robotWait(.5);
-        robot.jaws.transfer(.3);
-        robot.robotWait(5);
+        robot.prowl.driveto(-7,15,23,0.6,5);
+        shoot();
         //get second stack
-        robot.prowl.driveto(-5,50,90,0.4,5);
+        robot.prowl.driveto(-12,50,90,0.6,5);
         robot.jaws.intake.setPower(1);
         robot.jaws.transfer(.1);
         robot.prowl.driveto(-50,50,90,.2,5);
         robot.jaws.transfer(0);
-        robot.robotWait(.5);
-        robot.prowl.driveto(-7,15,27,0.4,5);
-        robot.robotWait(.5);
-        robot.jaws.transfer(.3);
-        robot.robotWait(5);
+        robot.prowl.driveto(-7,15,27,0.6,5);
+        shoot();
+        robot.prowl.driveto(-7,20,27,0.6,5);
     }
     private void closeRed(){
         robot.launch.setTargetRPM(3100);
@@ -249,5 +241,23 @@ public class MainAuto extends LinearOpMode {
 
 
 
+    }
+    private void closeBlue(){
+        robot.launch.setTargetRPM(3100);
+        robot.prowl.driveto(-29,-43,-47,0.4,5);
+        shoot();
+        robot.robotWait(1);
+        //get first stack
+        robot.jaws.intake.setPower(1);
+        robot.prowl.driveto(-28,-30,0,0.4,5);
+        robot.jaws.transfer(.2);
+        robot.prowl.driveto(-28,-3 ,0,0.2,5);
+        robot.jaws.intake.setPower(0);
+        robot.jaws.transfer(0);
+        robot.prowl.driveto(-29,-43,-47,0.4,5);
+        robot.robotWait(1);
+        shoot();
+        robot.robotWait(2);
+        //get second stack
     }
 }

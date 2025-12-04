@@ -28,8 +28,6 @@ public class CatHW_Jaws extends CatHW_Subsystem
     // Motors: //
 
     public DcMotor intake = null;
-    public DcMotorEx launcher;
-
     public DcMotor transfer;
     public ElapsedTime liftTime = null;
     public ElapsedTime pidTimer = null;
@@ -54,15 +52,8 @@ public class CatHW_Jaws extends CatHW_Subsystem
         // Define and initialize motors: /armMotor/
 
 
-        launcher=(DcMotorEx) hwMap.dcMotor.get("launcher");
-        launcher.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         intake=hwMap.dcMotor.get("intake");
         intake.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-
-        launcher.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        lastPos = launcher.getCurrentPosition();
-        lastTime = timer.seconds();
-        targetRPM = 0;
 
         transfer = hwMap.dcMotor.get("transfer");
         transfer.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
@@ -74,46 +65,6 @@ public class CatHW_Jaws extends CatHW_Subsystem
     public void transfer(double speed){
         transfer.setPower(speed);
     }
-    public void bumpRPM(){
-        targetRPM += 1;
-        if (targetRPM > 6000){
-            targetRPM = 6000;
-        }
-        setVelocity();
-    }
-    public void decRPM(){
-        targetRPM -= 1;
-        if (targetRPM < 0){
-            targetRPM = 0;
-        }
-        setVelocity();
-    }
-    public void setVelocity() {
-        launcher.setVelocity(targetRPM * ticksPerRev / 60);
-    }
-    public double getRPM(){
-        int currentPos = launcher.getCurrentPosition();
-        double currentTime = timer.seconds();
-        int deltaTicks = currentPos - lastPos;
-        double deltaTime = currentTime - lastTime;
-        if (deltaTime < 0.05) return 0;
-        if (deltaTime <= 0) return 0;
-        double rev = (double) deltaTicks/ticksPerRev;
-        double RPM = (rev/deltaTime) * 60;
-        //telemetry.addData("Launch", "dT = %4.3f dTick %4d\n",deltaTime,deltaTicks);
-        lastPos = currentPos;
-        lastTime = currentTime;
-        return RPM;
-    }
-
-
-    //----------------------------------------------------------------------------------------------e
-    // Jaw Methods:
-    //----------------------------------------------------------------------------------------------
-    public void launch(double power){
-        launcher.setPower(power);
-    }
-
 
 
     //----------------------------------------------------------------------------------------------

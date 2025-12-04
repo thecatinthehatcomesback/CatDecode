@@ -129,34 +129,39 @@ public class catTelop extends LinearOpMode {
             }
             if (gamepad2.circle) {
                 robot.jaws.intake.setPower(1);
+            } else   if (gamepad2.square){
+                robot.jaws.intake.setPower(-1);
             } else {
                 robot.jaws.intake.setPower(0);
             }
             if (gamepad2.dpad_up) {
-                robot.launch.setTargetRPM(robot.launch.getRPM()+50);
+                robot.launch.setTargetRPM(robot.launch.targetRPM + 5);
             }
             if (gamepad2.dpad_down) {
-                robot.launch.setTargetRPM(robot.launch.getRPM()-50);
+                robot.launch.setTargetRPM(robot.launch.targetRPM - 5);
+            }
+            if (gamepad2.dpad_left) {
+                robot.launch.setTargetRPM(3000);
+            }
+            if (gamepad2.dpad_right) {
+                robot.launch.setTargetRPM(3700);
             }
 
-            if (gamepad2.dpad_left) {
+            if (gamepad2.share) {
                 lift.goUp();
             } else {
                 lift.stopLift();
             }
 
             LLStatus status = limelight.getStatus();
-            double curRPM = robot.jaws.getRPM();
-            if (curRPM>0){
-                RPMs = curRPM;
-            }
+            robot.launch.setPowerFromPID();
 
             SparkFunOTOS.Pose2D currentPos = robot.prowl.myOtos.getPosition();
 
+            telemetry.addData("Launch", " RPM: %5.0f target %.0f", robot.launch.getLastRPM(), robot.launch.targetRPM);
+
+
             telemetry.addData("pos", "x: %4.1f y: %4.1f rot: %4.1f",currentPos.x,currentPos.y,currentPos.h);
-
-            telemetry.addData("Launch", " RPM: %5.0f target %.0f", RPMs, robot.launch.targetRPM);
-
 
             telemetry.addData("Name", "%s",
                         status.getName());
@@ -180,11 +185,11 @@ public class catTelop extends LinearOpMode {
                     }
                 }
                 if (isAutoAim) {
-                    if (xAngle > 5) {
-                        robot.prowl.drive(0, 0, 1, 0.3);
+                    if (xAngle > 3) {
+                        robot.prowl.drive(0, 0, 1, 0.4);
                     }
-                    if (xAngle < -5) {
-                        robot.prowl.drive(0, 0, -1, 0.3);
+                    if (xAngle < -3) {
+                        robot.prowl.drive(0, 0, -1, 0.4);
                     }
 
                 }

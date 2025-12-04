@@ -22,7 +22,7 @@ public class CatHW_Launcher {
     private double lastTime = 0;
 
     private double rpmEMA = 0.0;
-    private double rpmAlpha = 0.2;
+    private double rpmAlpha = 0.9;
     private int accTicks = 0;
     private double accTime = 0.0;
     private final double rpmSamplePeriod = 0.05;
@@ -37,7 +37,7 @@ public class CatHW_Launcher {
 
     public double kP = 0.00015;
     public double kI = 0.0;
-    public double kD = 0.00005;
+    public double kD = 0.00020; // orig 0.00005
     public double kF = 0.000194;
 
     public double targetRPM;
@@ -71,6 +71,9 @@ public class CatHW_Launcher {
         pidTimer.reset();
     }
 
+    public double getLastRPM() {
+        return rpmEMA;
+    }
     public double getRPM() {
         int currentPos = launcher.getCurrentPosition();
         double currentTime = timer.seconds();
