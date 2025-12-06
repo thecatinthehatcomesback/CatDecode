@@ -141,7 +141,7 @@ public class catTelop extends LinearOpMode {
                 robot.launch.setTargetRPM(robot.launch.targetRPM - 5);
             }
             if (gamepad2.dpad_left) {
-                robot.launch.setTargetRPM(3000);
+                robot.launch.setTargetRPM(3200);
             }
             if (gamepad2.dpad_right) {
                 robot.launch.setTargetRPM(3700);

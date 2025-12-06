@@ -163,7 +163,7 @@ public class MainAuto extends LinearOpMode {
         robot.jaws.intake.setPower(1);
         for(i = 0;i < 3;i++){
             robot.jaws.transfer(.4);
-            robot.robotWait(1.2);
+            robot.robotWait(1.3);
             robot.jaws.transfer(0);
             robot.robotWait(.5);
         }
@@ -171,32 +171,33 @@ public class MainAuto extends LinearOpMode {
         robot.jaws.transfer(0);
     }
     private void farRed(){
-        robot.launch.setTargetRPM(2000);
-        robot.prowl.driveto(3,8,-24,0.4,5);
-        robot.robotWait(1);
+        robot.launch.setTargetRPM(3800);
+        robot.prowl.driveto(3,8,-20,0.4,5);
+        robot.robotWait(2.5);
         shoot();
-
         //go get 1 stack
-        robot.prowl.driveto(12,26,-90,0.6,5);
+        robot.prowl.driveto(12,28,-90,0.6,5);
         robot.jaws.intake.setPower(1);
         robot.jaws.transfer(.1);
-        robot.prowl.driveto(50,26,-90,.2,5);
+        robot.prowl.driveto(48,28,-90,.2,5);
         robot.jaws.transfer(0);
-        robot.prowl.driveto(7,15,-23,0.6,5);
+        robot.jaws.intake.setPower(0);
+        robot.prowl.driveto(7,15,-20,0.6,5);
         shoot();
         //get second stack
         robot.prowl.driveto(12,50,-90,0.6,5);
         robot.jaws.intake.setPower(1);
         robot.jaws.transfer(.1);
-        robot.prowl.driveto(50,50,-90,.2,5);
+        robot.prowl.driveto(48,50,-90,.2,5);
         robot.jaws.transfer(0);
-        robot.prowl.driveto(7,15,-27,0.6,5);
+        robot.jaws.intake.setPower(0);
+        robot.prowl.driveto(7,15,-20,0.6,5);
         shoot();
-        robot.prowl.driveto(7,20,-27,0.6,5);
+        robot.prowl.driveto(7,20,-22,0.6,5);
 
     }
     private void farBlue() {
-        robot.launch.setTargetRPM(2000);
+        robot.launch.setTargetRPM(3700);
         robot.prowl.driveto(-3,8,24,0.4,5);
         robot.robotWait(1);
         shoot();
@@ -221,43 +222,53 @@ public class MainAuto extends LinearOpMode {
     }
     private void closeRed(){
         robot.launch.setTargetRPM(3100);
-        robot.prowl.driveto(29,-43,47,0.4,5);
+        robot.prowl.driveto(25,-38,45,0.4,5);
         shoot();
         robot.robotWait(1);
         //get first stack
         robot.jaws.intake.setPower(1);
-        robot.prowl.driveto(28,-30,0,0.4,5);
+        robot.prowl.driveto(30,-30,0,0.4,5);
         robot.jaws.transfer(.2);
-        robot.prowl.driveto(28,-3 ,0,0.2,5);
+        robot.prowl.driveto(30,-3 ,0,0.2,5);
         robot.jaws.intake.setPower(0);
         robot.jaws.transfer(0);
-        robot.prowl.driveto(29,-43,47,0.4,5);
+        robot.prowl.driveto(25,-38,45,0.4,5);
         robot.robotWait(1);
         shoot();
-        robot.robotWait(2);
-        //get second stack
+        robot.robotWait(1);
+        robot.prowl.driveto(55,-38,0,0.4,5);
+        robot.jaws.transfer(.1);
+        robot.jaws.intake.setPower(1);
+        robot.prowl.driveto(55,-4 ,0,0.2,5);
+        robot.jaws.intake.setPower(0);
+        robot.jaws.transfer(0);
 
-
-
+//sam was here
 
 
     }
     private void closeBlue(){
         robot.launch.setTargetRPM(3100);
-        robot.prowl.driveto(-29,-43,-47,0.4,5);
+        robot.prowl.driveto(-25,-38,-41,0.4,5);
         shoot();
         robot.robotWait(1);
         //get first stack
         robot.jaws.intake.setPower(1);
-        robot.prowl.driveto(-28,-30,0,0.4,5);
-        robot.jaws.transfer(.2);
-        robot.prowl.driveto(-28,-3 ,0,0.2,5);
+        robot.prowl.driveto(-30,-30,0,0.4,5);
+        robot.jaws.transfer(.1);
+        robot.prowl.driveto(-30,-3 ,0,0.2,5);
         robot.jaws.intake.setPower(0);
         robot.jaws.transfer(0);
-        robot.prowl.driveto(-29,-43,-47,0.4,5);
+        robot.prowl.driveto(-25,-38,-41,0.4,5);
         robot.robotWait(1);
         shoot();
-        robot.robotWait(2);
+        robot.robotWait(1);
+        robot.prowl.driveto(-55,-38,0,0.4,5);
+        robot.jaws.transfer(.1);
+        robot.jaws.intake.setPower(1);
+        robot.prowl.driveto(-55,-4 ,0,0.2,5);
+        robot.jaws.intake.setPower(0);
+        robot.jaws.transfer(0);
         //get second stack
     }
 }
