@@ -221,25 +221,26 @@ public class MainAuto extends LinearOpMode {
         robot.prowl.driveto(-7,20,27,0.6,5);
     }
     private void closeRed(){
-        robot.launch.setTargetRPM(3100);
-        robot.prowl.driveto(25,-38,45,0.4,5);
+        robot.launch.setTargetRPM(3000);
+        robot.prowl.driveto(25,-38,46,0.4,5);
+        robot.robotWait(.5);
         shoot();
         robot.robotWait(1);
         //get first stack
         robot.jaws.intake.setPower(1);
-        robot.prowl.driveto(30,-30,0,0.4,5);
+        robot.prowl.driveto(33,-30,0,0.4,5);
         robot.jaws.transfer(.2);
-        robot.prowl.driveto(30,-3 ,0,0.2,5);
+        robot.prowl.driveto(33,-3 ,0,0.2,5);
         robot.jaws.intake.setPower(0);
         robot.jaws.transfer(0);
         robot.prowl.driveto(25,-38,45,0.4,5);
         robot.robotWait(1);
         shoot();
         robot.robotWait(1);
-        robot.prowl.driveto(55,-38,0,0.4,5);
+        robot.prowl.driveto(58,-38,0,0.4,5);
         robot.jaws.transfer(.1);
         robot.jaws.intake.setPower(1);
-        robot.prowl.driveto(55,-4 ,0,0.2,5);
+        robot.prowl.driveto(58,-4 ,0,0.2,5);
         robot.jaws.intake.setPower(0);
         robot.jaws.transfer(0);
 
@@ -248,25 +249,26 @@ public class MainAuto extends LinearOpMode {
 
     }
     private void closeBlue(){
-        robot.launch.setTargetRPM(3100);
-        robot.prowl.driveto(-25,-38,-41,0.4,5);
+        robot.launch.setTargetRPM(3000);
+        robot.prowl.driveto(-25,-38,-43,0.4,5);
+        robot.robotWait(.5);
         shoot();
         robot.robotWait(1);
         //get first stack
         robot.jaws.intake.setPower(1);
-        robot.prowl.driveto(-30,-30,0,0.4,5);
+        robot.prowl.driveto(-33,-30,0,0.4,5);
         robot.jaws.transfer(.1);
-        robot.prowl.driveto(-30,-3 ,0,0.2,5);
+        robot.prowl.driveto(-33,-3 ,0,0.2,5);
         robot.jaws.intake.setPower(0);
         robot.jaws.transfer(0);
         robot.prowl.driveto(-25,-38,-41,0.4,5);
         robot.robotWait(1);
         shoot();
         robot.robotWait(1);
-        robot.prowl.driveto(-55,-38,0,0.4,5);
+        robot.prowl.driveto(-58,-38,0,0.4,5);
         robot.jaws.transfer(.1);
         robot.jaws.intake.setPower(1);
-        robot.prowl.driveto(-55,-4 ,0,0.2,5);
+        robot.prowl.driveto(-58,-4 ,0,0.2,5);
         robot.jaws.intake.setPower(0);
         robot.jaws.transfer(0);
         //get second stack
