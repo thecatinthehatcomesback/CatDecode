@@ -77,6 +77,8 @@ public class catTelop extends LinearOpMode {
     private Limelight3A limelight;
     boolean isAutoAim;
 
+    double gatePos;
+
     double RPMs;
 
 
@@ -89,6 +91,8 @@ public class catTelop extends LinearOpMode {
         limelight = hardwareMap.get(Limelight3A.class, "limelight");
         telemetry.setMsTransmissionInterval(11);
         limelight.pipelineSwitch(0);
+
+        gatePos = 0.5;
 
         /*
          * Starts polling for data.  If you neglect to call start(), getLatestResult() will return null.
@@ -152,6 +156,17 @@ public class catTelop extends LinearOpMode {
             } else {
                 lift.stopLift();
             }
+            if (gamepad2.triangle){
+                robot.jaws.gateClosed();
+                //gatePos = gatePos + .003;
+                //robot.jaws.gate.setPosition(gatePos);
+            }
+            if (gamepad2.cross){
+                robot.jaws.gateOpen();
+                //gatePos = gatePos - .003;
+                //robot.jaws.gate.setPosition(gatePos);
+            }
+
 
             LLStatus status = limelight.getStatus();
             robot.launch.setPowerFromPID();
@@ -159,6 +174,8 @@ public class catTelop extends LinearOpMode {
             SparkFunOTOS.Pose2D currentPos = robot.prowl.myOtos.getPosition();
 
             telemetry.addData("Launch", " RPM: %5.0f target %.0f", robot.launch.getLastRPM(), robot.launch.targetRPM);
+
+            telemetry.addData("gatePos","%.3f",gatePos);
 
 
             telemetry.addData("pos", "x: %4.1f y: %4.1f rot: %4.1f",currentPos.x,currentPos.y,currentPos.h);

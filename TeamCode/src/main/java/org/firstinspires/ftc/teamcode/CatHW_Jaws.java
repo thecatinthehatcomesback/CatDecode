@@ -28,6 +28,7 @@ public class CatHW_Jaws extends CatHW_Subsystem
     // Motors: //
 
     public DcMotor intake = null;
+    public Servo gate = null;
     public DcMotor transfer;
     public ElapsedTime liftTime = null;
     public ElapsedTime pidTimer = null;
@@ -51,6 +52,9 @@ public class CatHW_Jaws extends CatHW_Subsystem
     public void init() {
         // Define and initialize motors: /armMotor/
 
+        gate = hwMap.servo.get("gate");
+
+        gate.setPosition(0.5);
 
         intake=hwMap.dcMotor.get("intake");
         intake.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
@@ -65,6 +69,14 @@ public class CatHW_Jaws extends CatHW_Subsystem
     public void transfer(double speed){
         transfer.setPower(speed);
     }
+    public void gateOpen(){
+        gate.setPosition(0.47);
+    }
+    public void gateClosed(){
+        gate.setPosition(0.60);
+    }
+
+
 
 
     //----------------------------------------------------------------------------------------------
