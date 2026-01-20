@@ -164,7 +164,7 @@ public class catTelop extends LinearOpMode {
             if (gamepad2.cross){
                 robot.jaws.gateOpen();
                 //gatePos = gatePos - .003;
-                //robot.jaws.gate.setPosition(gatePos);
+               // robot.jaws.gate.setPosition(gatePos);
             }
 
 

@@ -54,8 +54,6 @@ public class CatHW_Jaws extends CatHW_Subsystem
 
         gate = hwMap.servo.get("gate");
 
-        gate.setPosition(0.5);
-
         intake=hwMap.dcMotor.get("intake");
         intake.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
@@ -70,10 +68,10 @@ public class CatHW_Jaws extends CatHW_Subsystem
         transfer.setPower(speed);
     }
     public void gateOpen(){
-        gate.setPosition(0.47);
+        gate.setPosition(0.55);
     }
     public void gateClosed(){
-        gate.setPosition(0.60);
+        gate.setPosition(0.71);
     }
 
 
