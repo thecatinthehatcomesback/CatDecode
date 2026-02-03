@@ -1,12 +1,15 @@
 package org.firstinspires.ftc.teamcode;
 
 import com.acmerobotics.dashboard.FtcDashboard;
+import com.acmerobotics.dashboard.config.Config;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
+import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.util.ElapsedTime;
 import com.qualcomm.robotcore.util.Range;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 
+@Config
 public class CatHW_Launcher {
 
     private CatHW_Async mainHardware;
@@ -30,15 +33,15 @@ public class CatHW_Launcher {
     private ElapsedTime pidTimer = new ElapsedTime();
     private double prevDerivative = 0;
     private double prevOutput = 0;
-    private double maxDeltaOutputPerSec = 0.3;
-    private double integralLimit = 10000.0;
-    private double derivativeFilterAlpha = 0.95;
-    private double outputMin = 0.0;
+    public static double maxDeltaOutputPerSec = 0.3;
+    public static double integralLimit = 10000.0;
+    public static double derivativeFilterAlpha = 0.95;
+    public static double outputMin = 0.0;
 
-    public double kP = 0.00015;
-    public double kI = 0.0;
-    public double kD = 0.00020; // orig 0.00005
-    public double kF = 0.000194;
+    public static double kP = 0.00015;
+    public static double kI = 0.0;
+    public static double kD = 0.00020; // orig 0.00005
+    public static double kF = 0.000194;
 
     public double targetRPM;
     private double integral = 0;
@@ -51,6 +54,7 @@ public class CatHW_Launcher {
     public void init() {
         launcher = mainHardware.hwMap.get(DcMotorEx.class, "launcher");
         launcher.setMode(DcMotorEx.RunMode.RUN_USING_ENCODER);
+        launcher.setDirection(DcMotorSimple.Direction.REVERSE);
         lastPos = launcher.getCurrentPosition();
         lastTime = timer.seconds();
         targetRPM = 0;
