@@ -128,10 +128,13 @@ public class catTelop extends LinearOpMode {
 
             } else if (gamepad2.right_bumper) {
                 robot.jaws.transfer(-0.5);
+            } else if (gamepad2.right_trigger > 0.3){
+                robot.jaws.transfer(0.5);
             } else {
                 robot.jaws.transfer(0);
             }
-            if (gamepad2.circle) {
+
+            if (gamepad2.circle || (gamepad2.right_trigger > 0.3)) {
                 robot.jaws.intake.setPower(1);
             } else   if (gamepad2.square){
                 robot.jaws.intake.setPower(-1);
@@ -164,9 +167,14 @@ public class catTelop extends LinearOpMode {
             if (gamepad2.cross){
                 robot.jaws.gateOpen();
                 //gatePos = gatePos - .003;
-               // robot.jaws.gate.setPosition(gatePos);
+                //robot.jaws.gate.setPosition(gatePos);
             }
+            if (gamepad2.right_trigger > 0.3) {
+                robot.jaws.gateOpen();
 
+            } else{
+                robot.jaws.gateClosed();
+            }
 
             LLStatus status = limelight.getStatus();
             robot.launch.setPowerFromPID();

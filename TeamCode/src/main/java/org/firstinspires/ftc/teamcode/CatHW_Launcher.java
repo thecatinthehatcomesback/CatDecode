@@ -4,6 +4,7 @@ import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.config.Config;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
+import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
 import com.qualcomm.robotcore.util.Range;
 
@@ -14,6 +15,8 @@ public class CatHW_Launcher {
 
     private CatHW_Async mainHardware;
     public DcMotorEx launcher;
+    public Servo leftLight;
+    public Servo rightLight;
     private static final int ticksPerRev = 28;
 
     private ElapsedTime timer = new ElapsedTime();
@@ -67,6 +70,8 @@ public class CatHW_Launcher {
         dashTel.addData("pow", 0);
         dashTel.update();
 
+        leftLight = mainHardware.hwMap.get(Servo.class,"leftLight");
+        rightLight = mainHardware.hwMap.get(Servo.class,"rightLight");
     }
 
     public void resetPID() {

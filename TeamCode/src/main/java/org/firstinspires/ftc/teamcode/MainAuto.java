@@ -183,6 +183,18 @@ public class MainAuto extends LinearOpMode {
                 adjust = adjust +0.2;
                 delayTimer.reset();
             }
+            if (robot.isRedAlliance){
+                robot.launch.leftLight.setPosition(0.3);
+            }
+            else {
+                robot.launch.leftLight.setPosition(0.611);
+            }
+            if ( robot.isCloseStart){
+                robot.launch.rightLight.setPosition(0.388);
+            }
+            else{
+                robot.launch.rightLight.setPosition(0.722);
+            }
 
 
 
