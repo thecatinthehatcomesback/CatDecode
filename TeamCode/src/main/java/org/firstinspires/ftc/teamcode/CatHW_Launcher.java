@@ -41,10 +41,10 @@ public class CatHW_Launcher {
     public static double derivativeFilterAlpha = 0.95;
     public static double outputMin = 0.0;
 
-    public static double kP = 0.00015;
+    public static double kP = 0.00045; //
     public static double kI = 0.0;
-    public static double kD = 0.00020; // orig 0.00005
-    public static double kF = 0.000194;
+    public static double kD = 0.00035; // orig 0.00020
+    public static double kF = 0.000195;
 
     public double targetRPM;
     private double integral = 0;
@@ -143,7 +143,7 @@ public class CatHW_Launcher {
         launcher.setPower(power);
 
         dashTel.addData("rpm",rpm);
-        dashTel.addData("pow", power);
+        dashTel.addData("pow", power * 2000);
         dashTel.update();
     }
 

@@ -68,7 +68,7 @@ public class CatHW_Jaws extends CatHW_Subsystem
         transfer.setPower(speed);
     }
     public void gateOpen(){
-        gate.setPosition(0.458);
+        gate.setPosition(0.4);
     }
     public void gateClosed(){
         gate.setPosition(0.653);

@@ -157,7 +157,7 @@ public class MainAuto extends LinearOpMode {
                     adjust = 0;
                 } else {
                     robot.isRedAlliance = true;
-                    adjust = -8;
+                    adjust = -6;//right here
                 }
                 delayTimer.reset();
             }
@@ -260,8 +260,8 @@ public class MainAuto extends LinearOpMode {
             //robot.jaws.transfer(0);
             //robot.robotWait(.5);
         //}
-        robot.jaws.transfer (0.4);
-        robot.robotWait(2.5);
+        robot.jaws.transfer (1);
+        robot.robotWait(1.5);
         robot.jaws.intake.setPower(0);
         robot.jaws.transfer(0);
         robot.jaws.gateClosed();
@@ -324,101 +324,108 @@ public class MainAuto extends LinearOpMode {
         robot.prowl.driveto(-7,20,27,0.6,5);*/
     }
     private void closeRed(){
-        robot.launch.setTargetRPM(2900);
-        robot.prowl.driveto(25,-38,38,0.6,5);
-        autoAim(4);
-        robot.robotWait(1);
+        robot.launch.setTargetRPM(2650);
+        robot.prowl.driveto(25,-38,30,0.4,5);
+        autoAim(1);
+        robot.robotWait(1.5);
         shoot();
         robot.robotWait(.2);
         //get first stack
         robot.jaws.intake.setPower(1);
-        robot.prowl.driveto(31,-30,0,0.6,5);
+        robot.prowl.driveto(31,-38,0,0.6,5);
         robot.jaws.transfer(.1);
-        robot.prowl.driveto(31,-2 ,0,0.4,5);
+        robot.prowl.driveto(31,-2,0,0.6,5);
         robot.jaws.intake.setPower(0);
         robot.jaws.transfer(0);
         //shoot 1st stack
         robot.prowl.driveto(25,-38,41,0.6,5);
-        autoAim(2);
-        robot.robotWait(1);
+        autoAim(1);
+        // robot.robotWait(1);
         shoot();
         //get 2nd stack
         robot.robotWait(.2);
-        robot.prowl.driveto(53,-38,0,0.6,5);
+        robot.prowl.driveto(55,-38,0,0.6,5);
         robot.jaws.transfer(.1);
         robot.jaws.intake.setPower(1);
-        robot.prowl.driveto(53,0 ,0,0.4,5);
+        robot.prowl.driveto(55,-1 ,0,0.6,5);
         robot.jaws.intake.setPower(0);
         robot.jaws.transfer(0);
         //shoot 2nd stack
+        robot.prowl.driveto(55,-20 ,0,0.8,5);
         robot.prowl.driveto(25,-38,41,0.6,5);
-        autoAim(2);
-        robot.robotWait(1);
+        autoAim(1);
+        //robot.robotWait(1);
         shoot();
         //get 3rd stack
         robot.robotWait(.2);
-        robot.prowl.driveto(75,-38,0,0.6,5);
+        robot.prowl.driveto(78,-38,0,0.6,5);
         robot.jaws.transfer(.1);
         robot.jaws.intake.setPower(1);
-        robot.prowl.driveto(75,-4 ,0,0.4,5);
+        robot.prowl.driveto(78,-4 ,0,0.6,5);
         robot.jaws.intake.setPower(0);
         robot.jaws.transfer(0);
         //shoot 3rd
-        /*  robot.prowl.driveto(25,-38,45,0.6,5);
-        autoAim(3);
-        robot.jaws.gateOpen();
-        robot.robotWait(1);
-        shoot();*/
+        robot.prowl.driveto(25,-38,41,0.6,5);
+        autoAim(1);
+        //robot.robotWait(1);
+        shoot();
+        //leave
+        robot.robotWait(.2);
+        robot.prowl.driveto(63,-38,0,0.6,5);
+
 //sam was here
 
 
     }
     private void closeBlue(){
-        robot.launch.setTargetRPM(2950);
-        robot.prowl.driveto(-25,-38,-41,0.6,5);
+        robot.launch.setTargetRPM(2650);
+        robot.prowl.driveto(-25,-38,-30,0.4,5);
         autoAim(3);
-        robot.robotWait(1);
+        robot.robotWait(1.5);
         shoot();
         robot.robotWait(.2);
         //get first stack
         robot.jaws.intake.setPower(1);
-        robot.prowl.driveto(-31,-30,0,0.6,5);
+        robot.prowl.driveto(-31,-38,0,0.6,5);
         robot.jaws.transfer(.1);
-        robot.prowl.driveto(-31,1 ,0,0.4,5);
+        robot.prowl.driveto(-31,-2,0,0.6,5);
         robot.jaws.intake.setPower(0);
         robot.jaws.transfer(0);
         //shoot 1st stack
         robot.prowl.driveto(-25,-38,-41,0.6,5);
         autoAim(2);
-        robot.robotWait(1);
+       // robot.robotWait(1);
         shoot();
         //get 2nd stack
         robot.robotWait(.2);
         robot.prowl.driveto(-55,-38,0,0.6,5);
         robot.jaws.transfer(.1);
         robot.jaws.intake.setPower(1);
-        robot.prowl.driveto(-55,-1 ,0,0.4,5);
+        robot.prowl.driveto(-55,-1 ,0,0.6,5);
         robot.jaws.intake.setPower(0);
         robot.jaws.transfer(0);
         //shoot 2nd stack
+        robot.prowl.driveto(-55,-20 ,0,0.8,5);
         robot.prowl.driveto(-25,-38,-41,0.6,5);
         autoAim(2);
-        robot.robotWait(1);
+        //robot.robotWait(1);
         shoot();
         //get 3rd stack
         robot.robotWait(.2);
         robot.prowl.driveto(-78,-38,0,0.6,5);
         robot.jaws.transfer(.1);
         robot.jaws.intake.setPower(1);
-        robot.prowl.driveto(-78,-4 ,0,0.4,5);
+        robot.prowl.driveto(-78,-4 ,0,0.6,5);
         robot.jaws.intake.setPower(0);
         robot.jaws.transfer(0);
         //shoot 3rd
-        /*  robot.prowl.driveto(25,-38,45,0.6,5);
-        autoAim(3);
-        robot.jaws.gateOpen();
-        robot.robotWait(1);
-        shoot();*/
+        robot.prowl.driveto(-25,-38,-41,0.6,5);
+        autoAim(2);
+        //robot.robotWait(1);
+        shoot();
+        //leave
+        robot.robotWait(.2);
+        robot.prowl.driveto(-63,-38,0,0.6,5);
 
     }
 }
