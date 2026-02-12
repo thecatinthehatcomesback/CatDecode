@@ -39,7 +39,7 @@ public class CatHW_Launcher {
     public static double maxDeltaOutputPerSec = 0.3;
     public static double integralLimit = 10000.0;
     public static double derivativeFilterAlpha = 0.95;
-    public static double outputMin = 0.0;
+    public static double outputMin = -1;
 
     public static double kP = 0.00045; //
     public static double kI = 0.0;
@@ -129,10 +129,10 @@ public class CatHW_Launcher {
 
         out = Range.clip(out, outputMin, 1.0);
 
-        double maxDelta = maxDeltaOutputPerSec * dt;
+        /*double maxDelta = maxDeltaOutputPerSec * dt;
         double delta = Range.clip(out - prevOutput, -maxDelta, maxDelta);
         out = prevOutput + delta;
-        prevOutput = out;
+        prevOutput = out;*/
 
         return out;
     }
@@ -143,7 +143,7 @@ public class CatHW_Launcher {
         launcher.setPower(power);
 
         dashTel.addData("rpm",rpm);
-        dashTel.addData("pow", power * 2000);
+        dashTel.addData("pow", 1000 + power * 1000);
         dashTel.update();
     }
 

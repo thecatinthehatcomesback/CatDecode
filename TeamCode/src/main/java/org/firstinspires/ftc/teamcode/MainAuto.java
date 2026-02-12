@@ -57,6 +57,7 @@ public class MainAuto extends LinearOpMode {
                     }
                 }
             }
+            xAngle = xAngle + adjust;
 
             if (!hasTarget) {
                 // No target → stop rotating
@@ -72,8 +73,7 @@ public class MainAuto extends LinearOpMode {
 
             // Rotate toward target
             double kP = 0.04; // proportional gain
-            double biasDeg = adjust; // compensate for camera/shooter offset
-            double turn = (xAngle - biasDeg) * kP;
+            double turn = xAngle * kP;
 
             // minimum turn power so small errors still correct
             double minTurn = 0.15;
@@ -157,7 +157,7 @@ public class MainAuto extends LinearOpMode {
                     adjust = 0;
                 } else {
                     robot.isRedAlliance = true;
-                    adjust = -6;//right here
+                    adjust = 4;//8right here
                 }
                 delayTimer.reset();
             }
@@ -267,14 +267,20 @@ public class MainAuto extends LinearOpMode {
         robot.jaws.gateClosed();
     }
     private void farRed(){
-        robot.prowl.driveto(23,2,0,0.4,5);
-        /*robot.launch.setTargetRPM(5000);
+        robot.launch.setTargetRPM(3900);
         robot.prowl.driveto(3,8,-20,0.4,5);
         autoAim(3);
         robot.robotWait(4);
-        shoot();
+        robot.jaws.gateOpen();
+        robot.jaws.intake.setPower(1);
+        robot.jaws.transfer (.5);
+        robot.robotWait(2.5);
+        robot.jaws.intake.setPower(0);
+        robot.jaws.transfer(0);
+        robot.jaws.gateClosed();
+        robot.prowl.driveto(23,2,0,0.4,5);
         //go get 1 stack
-        robot.prowl.driveto(12,28,-90,0.6,5);
+       /* robot.prowl.driveto(12,28,-90,0.6,5);
         robot.jaws.intake.setPower(1);
         robot.jaws.transfer(.1);
         robot.prowl.driveto(48,28,-90,.2,5);
@@ -299,14 +305,15 @@ public class MainAuto extends LinearOpMode {
 
     }
     private void farBlue() {
-        robot.prowl.driveto(-23,2,0,0.4,5);
-        /*robot.launch.setTargetRPM(3700);
+        //robot.prowl.driveto(-23,2,0,0.4,5);
+        robot.launch.setTargetRPM(3000);
+        autoAim(3);
         robot.prowl.driveto(-3,8,24,0.4,5);
         robot.robotWait(1);
         shoot();
 
         //go get 1 stack
-        robot.prowl.driveto(-12,26,90,0.6,5);
+       /* robot.prowl.driveto(-12,26,90,0.6,5);
         robot.jaws.intake.setPower(1);
         robot.jaws.transfer(.1);
         robot.prowl.driveto(-50,26,90,.2,5);
@@ -324,7 +331,7 @@ public class MainAuto extends LinearOpMode {
         robot.prowl.driveto(-7,20,27,0.6,5);*/
     }
     private void closeRed(){
-        robot.launch.setTargetRPM(2650);
+        robot.launch.setTargetRPM(2575);
         robot.prowl.driveto(25,-38,30,0.4,5);
         autoAim(1);
         robot.robotWait(1.5);
@@ -378,7 +385,7 @@ public class MainAuto extends LinearOpMode {
 
     }
     private void closeBlue(){
-        robot.launch.setTargetRPM(2650);
+        robot.launch.setTargetRPM(2575);
         robot.prowl.driveto(-25,-38,-30,0.4,5);
         autoAim(3);
         robot.robotWait(1.5);
