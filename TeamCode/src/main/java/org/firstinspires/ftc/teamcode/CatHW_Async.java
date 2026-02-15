@@ -28,7 +28,7 @@ public class CatHW_Async
 
     public static boolean isCloseStart = true;
     public static boolean isRedAlliance = false;
-
+    public static double adjust;
 
     /** Local OpMode members. */
     HardwareMap hwMap = null;

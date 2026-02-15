@@ -207,13 +207,14 @@ public class catTelop extends LinearOpMode {
                             fr.getFiducialId(), fr.getFamily(), fr.getTargetXDegrees(), fr.getTargetYDegrees());
                     if ((fr.getFiducialId() == 20) || (fr.getFiducialId() == 24)) {
                         xAngle = fr.getTargetXDegrees();
+                        xAngle = xAngle  + robot.adjust;
                     }
                 }
                 if (isAutoAim) {
-                    if (xAngle > 3) {
+                    if (xAngle > 2) {
                         robot.prowl.drive(0, 0, 1, 0.4);
                     }
-                    if (xAngle < -3) {
+                    if (xAngle < -2) {
                         robot.prowl.drive(0, 0, -1, 0.4);
                     }
 

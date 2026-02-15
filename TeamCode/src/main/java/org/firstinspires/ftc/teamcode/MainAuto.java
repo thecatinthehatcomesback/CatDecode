@@ -37,7 +37,6 @@ import com.qualcomm.hardware.limelightvision.LLResultTypes;
 
 public class MainAuto extends LinearOpMode {
 
-    private double adjust = 0;
     private void autoAim(double timeoutSeconds) {
         ElapsedTime timer = new ElapsedTime();
         timer.reset();
@@ -57,7 +56,7 @@ public class MainAuto extends LinearOpMode {
                     }
                 }
             }
-            xAngle = xAngle + adjust;
+            xAngle = xAngle + robot.adjust;
 
             if (!hasTarget) {
                 // No target → stop rotating
@@ -117,6 +116,7 @@ public class MainAuto extends LinearOpMode {
 
         robot.init(hardwareMap, this);
         robot.prowl.telemetry = telemetry;
+        robot.adjust = 0;
 
         limelight = hardwareMap.get(Limelight3A.class, "limelight");
         limelight.pipelineSwitch(0);
@@ -154,10 +154,14 @@ public class MainAuto extends LinearOpMode {
                 // Changes Alliance Sides
                 if (robot.isRedAlliance) {
                     robot.isRedAlliance = false;
-                    adjust = 0;
+                    robot.adjust = 0;
                 } else {
                     robot.isRedAlliance = true;
-                    adjust = 4;//8right here
+                    if (robot.isCloseStart) {
+                        robot.adjust = 8;
+                    } else {
+                        robot.adjust = 4;
+                    }
                 }
                 delayTimer.reset();
             }
@@ -169,18 +173,25 @@ public class MainAuto extends LinearOpMode {
                 } else {
                     robot.isCloseStart = true;
                 }
+                if (robot.isRedAlliance) {
+                    if (robot.isCloseStart) {
+                        robot.adjust = 8;
+                    } else {
+                        robot.adjust = 4;
+                    }
+                }
                 delayTimer.reset();
             }
             if (((gamepad1.dpad_left) && delayTimer.seconds() > 0.3)) {
                 // Changes Alliance Sides
 
-                adjust = adjust -0.2;
+                robot.adjust = robot.adjust -0.2;
                 delayTimer.reset();
             }
             if (((gamepad1.dpad_right) && delayTimer.seconds() > 0.3)) {
                 // Changes Alliance Sides
 
-                adjust = adjust +0.2;
+                robot.adjust = robot.adjust +0.2;
                 delayTimer.reset();
             }
             if (robot.isRedAlliance){
@@ -205,7 +216,7 @@ public class MainAuto extends LinearOpMode {
             telemetry.addData("Time Delay ","%.0f  seconds",timeDelay);
             telemetry.addData("Alliance","%s",robot.isRedAlliance ? "red":"blue");
             telemetry.addData("Position", "%s",robot.isCloseStart ? "close":"far");
-            telemetry.addData("aimAjust","%.1f",adjust);
+            telemetry.addData("aimAjust","%.1f",robot.adjust);
             dashboardTelemetry.update();
             telemetry.update();
 
@@ -351,10 +362,10 @@ public class MainAuto extends LinearOpMode {
         shoot();
         //get 2nd stack
         robot.robotWait(.2);
-        robot.prowl.driveto(55,-38,0,0.6,5);
+        robot.prowl.driveto(53,-38,0,0.6,5);
         robot.jaws.transfer(.1);
         robot.jaws.intake.setPower(1);
-        robot.prowl.driveto(55,-1 ,0,0.6,5);
+        robot.prowl.driveto(53,-1 ,0,0.6,5);
         robot.jaws.intake.setPower(0);
         robot.jaws.transfer(0);
         //shoot 2nd stack
@@ -365,10 +376,10 @@ public class MainAuto extends LinearOpMode {
         shoot();
         //get 3rd stack
         robot.robotWait(.2);
-        robot.prowl.driveto(78,-38,0,0.6,5);
+        robot.prowl.driveto(76,-38,0,0.6,5);
         robot.jaws.transfer(.1);
         robot.jaws.intake.setPower(1);
-        robot.prowl.driveto(78,-4 ,0,0.6,5);
+        robot.prowl.driveto(76,-4 ,0,0.6,5);
         robot.jaws.intake.setPower(0);
         robot.jaws.transfer(0);
         //shoot 3rd
