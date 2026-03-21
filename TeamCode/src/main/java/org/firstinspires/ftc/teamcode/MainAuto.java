@@ -1,5 +1,7 @@
 package org.firstinspires.ftc.teamcode;
 
+import android.util.Log;
+
 import com.acmerobotics.dashboard.FtcDashboard;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
@@ -36,21 +38,41 @@ import com.qualcomm.hardware.limelightvision.LLResultTypes;
 @Autonomous(name="New Auto", group="CatAuto")
 
 public class MainAuto extends LinearOpMode {
+    private void logAngle(String mesg){
+        LLResult result = limelight.getLatestResult();
+        if (result != null && result.isValid()) {
+            for (LLResultTypes.FiducialResult fr : result.getFiducialResults()) {
+                if (fr.getFiducialId() == 20 || fr.getFiducialId() == 24) {
+                    Log.d("catbot",String.format("turn  0 raw %5.2f     %s " ,
+                           fr.getTargetXDegrees(),mesg));
+                    break;
+                }
+            }
+        } else {
+            Log.d("catbot",String.format("turn  0 raw ?????     %s",mesg));
+        }
+    }
 
     private void autoAim(double timeoutSeconds) {
         ElapsedTime timer = new ElapsedTime();
         timer.reset();
+        ElapsedTime pidTimer = new ElapsedTime();
+        pidTimer.reset();
+
+        double lastAngle = 999;
 
         while (opModeIsActive() && timer.seconds() < timeoutSeconds) {
 
             LLResult result = limelight.getLatestResult();
             double xAngle = 0;
             boolean hasTarget = false;
+            double rawAngle = 0;
 
             if (result != null && result.isValid()) {
                 for (LLResultTypes.FiducialResult fr : result.getFiducialResults()) {
                     if (fr.getFiducialId() == 20 || fr.getFiducialId() == 24) {
                         xAngle = fr.getTargetXDegrees();
+                        rawAngle = xAngle;
                         hasTarget = true;
                         break;
                     }
@@ -70,23 +92,34 @@ public class MainAuto extends LinearOpMode {
                 return;
             }
 
+            double dt = Math.max(1e-3, pidTimer.seconds());
+            pidTimer.reset();
+            if (lastAngle==999){
+                lastAngle = xAngle;
+            }
+            double derivative = (xAngle - lastAngle) / dt;
+            lastAngle = xAngle;
+
             // Rotate toward target
-            double kP = 0.04; // proportional gain
-            double turn = xAngle * kP;
+            double kP = 0.08; // proportional gain
+            double kD = .004;
+            double turn = xAngle * kP + derivative * kD;
 
             // minimum turn power so small errors still correct
-            double minTurn = 0.15;
+            double minTurn = 0.08;
             if (Math.abs(turn) < minTurn) {
                 turn = Math.signum(turn) * minTurn;
             }
 
             // clamp max turn power
-            turn = Math.max(-0.35, Math.min(0.35, turn));
+            turn = Math.max(-0.7, Math.min(0.7, turn));
+            Log.d("catbot",String.format("turn %4.2f raw %5.2f x %5.2f kD %.2f" ,
+                    turn,rawAngle, xAngle ,derivative * kD ));
 
             // apply signed turn directly
             robot.prowl.drive(0, 0, turn, 1);
 
-            sleep(20);
+            sleep(5);
         }
 
         // Timeout fallback
@@ -175,7 +208,7 @@ public class MainAuto extends LinearOpMode {
                 }
                 if (robot.isRedAlliance) {
                     if (robot.isCloseStart) {
-                        robot.adjust = 8;
+                        robot.adjust = 3;
                     } else {
                         robot.adjust = 4;
                     }
@@ -343,10 +376,12 @@ public class MainAuto extends LinearOpMode {
     }
     private void closeRed(){
         robot.launch.setTargetRPM(2575);
-        robot.prowl.driveto(25,-38,30,0.4,5);
-        autoAim(1);
+        robot.prowl.driveto(25,-38,37,0.4,5);
+        autoAim(3);
         robot.robotWait(1.5);
+        logAngle("before");
         shoot();
+        logAngle("after");
         robot.robotWait(.2);
         //get first stack
         robot.jaws.intake.setPower(1);
@@ -356,10 +391,12 @@ public class MainAuto extends LinearOpMode {
         robot.jaws.intake.setPower(0);
         robot.jaws.transfer(0);
         //shoot 1st stack
-        robot.prowl.driveto(25,-38,41,0.6,5);
-        autoAim(1);
+        robot.prowl.driveto(25,-38,47,0.6,5);
+        autoAim(3);
         // robot.robotWait(1);
+        logAngle("before");
         shoot();
+        logAngle("after");
         //get 2nd stack
         robot.robotWait(.2);
         robot.prowl.driveto(53,-38,0,0.6,5);
@@ -370,10 +407,12 @@ public class MainAuto extends LinearOpMode {
         robot.jaws.transfer(0);
         //shoot 2nd stack
         robot.prowl.driveto(55,-20 ,0,0.8,5);
-        robot.prowl.driveto(25,-38,41,0.6,5);
-        autoAim(1);
-        //robot.robotWait(1);
+        robot.prowl.driveto(25,-38,47,0.6,5);
+        autoAim(3);
+        //robot.robotWait(1);]
+        logAngle("before");
         shoot();
+        logAngle("after");
         //get 3rd stack
         robot.robotWait(.2);
         robot.prowl.driveto(76,-38,0,0.6,5);
@@ -383,10 +422,12 @@ public class MainAuto extends LinearOpMode {
         robot.jaws.intake.setPower(0);
         robot.jaws.transfer(0);
         //shoot 3rd
-        robot.prowl.driveto(25,-38,41,0.6,5);
-        autoAim(1);
+        robot.prowl.driveto(25,-38,47,0.6,5);
+        autoAim(3);
         //robot.robotWait(1);
+        logAngle("before");
         shoot();
+        logAngle("after");
         //leave
         robot.robotWait(.2);
         robot.prowl.driveto(63,-38,0,0.6,5);
