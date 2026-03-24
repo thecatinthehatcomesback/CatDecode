@@ -115,7 +115,32 @@ public class catTelop extends LinearOpMode {
             } else {
                 driveSpeed = 0.75;
             }
-            robot.prowl.drive(-gamepad1.right_stick_y, gamepad1.right_stick_x, gamepad1.left_stick_x, driveSpeed);
+
+            LLResult result = limelight.getLatestResult();
+            double xAngle = 0;
+            if (result.isValid()) {
+
+                // Access fiducial results
+                List<LLResultTypes.FiducialResult> fiducialResults = result.getFiducialResults();
+                for (LLResultTypes.FiducialResult fr : fiducialResults) {
+                    telemetry.addData("Fiducial", "ID: %d, Family: %s, X: %.2f, Y: %.2f",
+                            fr.getFiducialId(), fr.getFamily(), fr.getTargetXDegrees(), fr.getTargetYDegrees());
+                    if ((fr.getFiducialId() == 20) || (fr.getFiducialId() == 24)) {
+                        xAngle = fr.getTargetXDegrees();
+                        xAngle = xAngle  + robot.adjust;
+                    }
+                }
+            }
+            if (isAutoAim) {
+                if (xAngle > 2.25) {
+                    robot.prowl.drive(-gamepad1.right_stick_y, gamepad1.right_stick_x,.1, driveSpeed);
+                }
+                if (xAngle < -2.25) {
+                    robot.prowl.drive(-gamepad1.right_stick_y, gamepad1.right_stick_x,-.1, driveSpeed);
+                }
+            }else {
+                robot.prowl.drive(-gamepad1.right_stick_y, gamepad1.right_stick_x, gamepad1.left_stick_x, driveSpeed);
+            }
 
             if (gamepad1.square) {
                 isAutoAim = true;
@@ -195,31 +220,6 @@ public class catTelop extends LinearOpMode {
             telemetry.addData("Pipeline", "Index: %d, Type: %s",
                         status.getPipelineIndex(), status.getPipelineType());
             telemetry.update();
-
-            LLResult result = limelight.getLatestResult();
-            if (result.isValid()) {
-                double xAngle = 0;
-
-                // Access fiducial results
-                List<LLResultTypes.FiducialResult> fiducialResults = result.getFiducialResults();
-                for (LLResultTypes.FiducialResult fr : fiducialResults) {
-                    telemetry.addData("Fiducial", "ID: %d, Family: %s, X: %.2f, Y: %.2f",
-                            fr.getFiducialId(), fr.getFamily(), fr.getTargetXDegrees(), fr.getTargetYDegrees());
-                    if ((fr.getFiducialId() == 20) || (fr.getFiducialId() == 24)) {
-                        xAngle = fr.getTargetXDegrees();
-                        xAngle = xAngle  + robot.adjust;
-                    }
-                }
-                if (isAutoAim) {
-                    if (xAngle > 2) {
-                        robot.prowl.drive(0, 0, 1, 0.4);
-                    }
-                    if (xAngle < -2) {
-                        robot.prowl.drive(0, 0, -1, 0.4);
-                    }
-
-                }
-            }
         }
     }
 
