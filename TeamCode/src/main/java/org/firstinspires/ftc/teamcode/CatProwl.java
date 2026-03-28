@@ -237,6 +237,10 @@ public class CatProwl extends CatHW_Subsystem {
         rightFrontMotor.setPower(driveSpeed * (frontRightPower / maxPower));
         leftRearMotor.setPower(driveSpeed * (backLeftPower / maxPower));
         rightRearMotor.setPower(driveSpeed * (backRightPower / maxPower));
+
+        telemetry.addData("powers", "lF: %.2f, rF: %.2f, lR: %.2f, rR: %.2f",
+                leftFrontMotor.getPower(), rightFrontMotor.getPower(),leftRearMotor.getPower(), rightRearMotor.getPower());
+        telemetry.addData("drive", "fw:%.2f, strafe %.2f, rot: %.2f, speed: %.2f",forward, right,  rotate,  driveSpeed);
     }
     public double findScalor(double leftFrontValue, double rightFrontValue,
                              double leftBackValue, double rightBackValue) {
