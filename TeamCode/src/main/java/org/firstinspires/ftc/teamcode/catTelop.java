@@ -80,14 +80,17 @@ public class catTelop extends LinearOpMode {
     double gatePos;
 
     double RPMs;
-
+    public double getDistFromTage(double ta){
+        double dist = Math.pow(843267.4/ta, 1.0/1.81); //926064.2
+        return dist;
+    }
 
     @Override
     public void runOpMode() {
         robot.init(hardwareMap, this);
         lift = new CatLift(robot);
         lift.init();
-
+        robot.prowl.telemetry = telemetry;
         limelight = hardwareMap.get(Limelight3A.class, "limelight");
         telemetry.setMsTransmissionInterval(11);
         limelight.pipelineSwitch(0);
@@ -123,20 +126,34 @@ public class catTelop extends LinearOpMode {
                 // Access fiducial results
                 List<LLResultTypes.FiducialResult> fiducialResults = result.getFiducialResults();
                 for (LLResultTypes.FiducialResult fr : fiducialResults) {
-                    telemetry.addData("Fiducial", "ID: %d, Family: %s, X: %.2f, Y: %.2f",
-                            fr.getFiducialId(), fr.getFamily(), fr.getTargetXDegrees(), fr.getTargetYDegrees());
+                    String target = "unknown";
+                    if (fr.getFiducialId() == 24){
+                        target = "Red";
+                    }
+                    if (fr.getFiducialId() == 20) {
+                        target = "Blue";
+                    }
+                    telemetry.addData("Target", "ID: %s, rot: %.1f area: %.4f, dist: %.1f",
+                            target, fr.getTargetXDegrees(), result.getTa(), getDistFromTage(result.getTa())/25.4);
                     if ((fr.getFiducialId() == 20) || (fr.getFiducialId() == 24)) {
                         xAngle = fr.getTargetXDegrees();
                         xAngle = xAngle  + robot.adjust;
                     }
                 }
+
             }
             if (isAutoAim) {
-                if (xAngle > 2.25) {
-                    robot.prowl.drive(-gamepad1.right_stick_y, gamepad1.right_stick_x,.1, driveSpeed);
+                double kP = .02;
+                double rotate = xAngle * kP;
+                if (rotate < .15){
+                    rotate = .15;
                 }
-                if (xAngle < -2.25) {
-                    robot.prowl.drive(-gamepad1.right_stick_y, gamepad1.right_stick_x,-.1, driveSpeed);
+                if (xAngle > 2.25) {
+                    robot.prowl.drive(-gamepad1.right_stick_y, gamepad1.right_stick_x,rotate, driveSpeed);
+                }else if (xAngle < -2.25) {
+                    robot.prowl.drive(-gamepad1.right_stick_y, gamepad1.right_stick_x,-rotate, driveSpeed);
+                }else {
+                    robot.prowl.drive(-gamepad1.right_stick_y, gamepad1.right_stick_x,0, driveSpeed);
                 }
             }else {
                 robot.prowl.drive(-gamepad1.right_stick_y, gamepad1.right_stick_x, gamepad1.left_stick_x, driveSpeed);
@@ -201,26 +218,17 @@ public class catTelop extends LinearOpMode {
                 robot.jaws.gateClosed();
             }
 
-            LLStatus status = limelight.getStatus();
             robot.launch.setPowerFromPID();
 
             SparkFunOTOS.Pose2D currentPos = robot.prowl.myOtos.getPosition();
 
             telemetry.addData("Launch", " RPM: %5.0f target %.0f", robot.launch.getLastRPM(), robot.launch.targetRPM);
-
             telemetry.addData("gatePos","%.3f",gatePos);
+            telemetry.addData("odo", "x: %4.1f y: %4.1f rot: %4.1f",currentPos.x,currentPos.y,currentPos.h);
 
-
-            telemetry.addData("pos", "x: %4.1f y: %4.1f rot: %4.1f",currentPos.x,currentPos.y,currentPos.h);
-
-            telemetry.addData("Name", "%s",
-                        status.getName());
-            telemetry.addData("LL", "Temp: %.1fC, CPU: %.1f%%, FPS: %d",
-                        status.getTemp(), status.getCpu(), (int) status.getFps());
-            telemetry.addData("Pipeline", "Index: %d, Type: %s",
-                        status.getPipelineIndex(), status.getPipelineType());
             telemetry.update();
         }
+
     }
 
 
