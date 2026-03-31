@@ -121,6 +121,7 @@ public class catTelop extends LinearOpMode {
 
             LLResult result = limelight.getLatestResult();
             double xAngle = 0;
+            double dist = 0;
             if (result.isValid()) {
 
                 // Access fiducial results
@@ -133,8 +134,9 @@ public class catTelop extends LinearOpMode {
                     if (fr.getFiducialId() == 20) {
                         target = "Blue";
                     }
+                    dist = getDistFromTage(result.getTa())/25.4;
                     telemetry.addData("Target", "ID: %s, rot: %.1f area: %.4f, dist: %.1f",
-                            target, fr.getTargetXDegrees(), result.getTa(), getDistFromTage(result.getTa())/25.4);
+                            target, fr.getTargetXDegrees(), result.getTa(), dist);
                     if ((fr.getFiducialId() == 20) || (fr.getFiducialId() == 24)) {
                         xAngle = fr.getTargetXDegrees();
                         xAngle = xAngle  + robot.adjust;
@@ -182,6 +184,13 @@ public class catTelop extends LinearOpMode {
                 robot.jaws.intake.setPower(-1);
             } else {
                 robot.jaws.intake.setPower(0);
+            }
+            if ((dist > 38)&&(dist < 52)){
+                robot.launch.setTargetRPM(2100);
+            }else if ((dist >= 52)&&(dist < 110) ){
+                robot.launch.setTargetRPM(13.1 * dist + 1419);
+            } else if (dist >= 110){
+                robot.launch.setTargetRPM(3200);
             }
             if (gamepad2.dpad_up) {
                 robot.launch.setTargetRPM(robot.launch.targetRPM + 5);
