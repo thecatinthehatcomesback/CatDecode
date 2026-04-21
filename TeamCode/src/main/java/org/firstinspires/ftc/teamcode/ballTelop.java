@@ -28,23 +28,25 @@
  */
 package org.firstinspires.ftc.teamcode;
 
-import com.acmerobotics.dashboard.telemetry.TelemetryPacket;
+import android.graphics.Color;
+import android.util.Size;
+
 import com.qualcomm.hardware.limelightvision.LLResult;
 import com.qualcomm.hardware.limelightvision.LLResultTypes;
-import com.qualcomm.hardware.limelightvision.LLStatus;
 import com.qualcomm.hardware.limelightvision.Limelight3A;
-import com.qualcomm.hardware.rev.RevHubOrientationOnRobot;
 import com.qualcomm.hardware.sparkfun.SparkFunOTOS;
-import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
-import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
-import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.IMU;
 
-import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
-import org.firstinspires.ftc.robotcore.external.navigation.Pose3D;
+import org.firstinspires.ftc.robotcore.external.Telemetry;
+import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
+import org.firstinspires.ftc.vision.VisionPortal;
+import org.firstinspires.ftc.vision.opencv.ColorBlobLocatorProcessor;
+import org.firstinspires.ftc.vision.opencv.ColorRange;
+import org.firstinspires.ftc.vision.opencv.ImageRegion;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /*
@@ -61,14 +63,14 @@ import java.util.List;
  * Remove or comment out the @Disabled line to add this OpMode to the Driver Station OpMode list
  *
  */
-@TeleOp(name = "Main Telop", group = "Robot")
+@TeleOp(name = "ballTelop", group = "Robot")
 
-public class catTelop extends LinearOpMode {
+public class ballTelop extends LinearOpMode {
 
     // This declares the four motors needed
     CatHW_Async robot;
     CatLift lift;
-    public  catTelop(){
+    public ballTelop(){
         robot=new CatHW_Async();
     }
 
@@ -76,6 +78,8 @@ public class catTelop extends LinearOpMode {
     IMU imu;
     private Limelight3A limelight;
     boolean isAutoAim;
+
+    boolean isAutoBall;
 
     double gatePos;
 
@@ -97,12 +101,55 @@ public class catTelop extends LinearOpMode {
 
         gatePos = 0.5;
 
+        ColorBlobLocatorProcessor greenLocator = new ColorBlobLocatorProcessor.Builder()
+                .setTargetColorRange(ColorRange.ARTIFACT_GREEN)   // Use a predefined color match
+                .setContourMode(ColorBlobLocatorProcessor.ContourMode.EXTERNAL_ONLY)
+                .setRoi(ImageRegion.asUnityCenterCoordinates(-1, 1, 1, -1))
+                .setDrawContours(true)   // Show contours on the Stream Preview
+                .setBoxFitColor(0)       // Disable the drawing of rectangles
+                .setCircleFitColor(Color.rgb(40, 255, 40)) // Draw a circle
+                .setBlurSize(5)          // Smooth the transitions between different colors in image
+
+                // the following options have been added to fill in perimeter holes.
+                .setDilateSize(15)       // Expand blobs to fill any divots on the edges
+                .setErodeSize(15)        // Shrink blobs back to original size
+                .setMorphOperationType(ColorBlobLocatorProcessor.MorphOperationType.CLOSING)
+
+                .build();
+
+        ColorBlobLocatorProcessor purpleLocator = new ColorBlobLocatorProcessor.Builder()
+                .setTargetColorRange(ColorRange.ARTIFACT_PURPLE)   // Use a predefined color match
+                .setContourMode(ColorBlobLocatorProcessor.ContourMode.EXTERNAL_ONLY)
+                .setRoi(ImageRegion.asUnityCenterCoordinates(-1, 1, 1, -1))
+                .setDrawContours(true)   // Show contours on the Stream Preview
+                .setBoxFitColor(0)       // Disable the drawing of rectangles
+                .setCircleFitColor(Color.rgb(128, 0, 128)) // Draw a circle
+                .setBlurSize(5)          // Smooth the transitions between different colors in image
+
+                // the following options have been added to fill in perimeter holes.
+                .setDilateSize(15)       // Expand blobs to fill any divots on the edges
+                .setErodeSize(15)        // Shrink blobs back to original size
+                .setMorphOperationType(ColorBlobLocatorProcessor.MorphOperationType.CLOSING)
+
+                .build();
+
+        VisionPortal portal = new VisionPortal.Builder()
+                .addProcessor(greenLocator)
+                .addProcessor(purpleLocator)
+                .setCameraResolution(new Size(320, 240))
+                .setCamera(hardwareMap.get(WebcamName.class, "cam"))
+                .build();
+
+        telemetry.setMsTransmissionInterval(100);   // Speed up telemetry updates for debugging.
+        telemetry.setDisplayFormat(Telemetry.DisplayFormat.MONOSPACE);
         /*
          * Starts polling for data.  If you neglect to call start(), getLatestResult() will return null.
          */
         limelight.start();
 
-        isAutoAim=false;
+        isAutoAim = false;
+
+        isAutoBall = false;
 
         waitForStart();
 
@@ -157,15 +204,48 @@ public class catTelop extends LinearOpMode {
                 }else {
                     robot.prowl.drive(-gamepad1.right_stick_y, gamepad1.right_stick_x,0, driveSpeed);
                 }
-            }else {
+            } else if (isAutoBall){
+
+                List<ColorBlobLocatorProcessor.Blob> blobs = new ArrayList<>();
+                blobs.addAll(greenLocator.getBlobs());
+                blobs.addAll(purpleLocator.getBlobs());
+
+
+                if (!blobs.isEmpty()){
+                    blobs.sort((a,b)->{
+                        return Double.compare(
+                                b.getContourArea(), a.getContourArea());
+                    });
+                    telemetry.addData("blob","x %.2f y %.2f area %d",
+                            blobs.get(0).getBoxFit().center.x, blobs.get(0).getBoxFit().center.y, blobs.get(0).getContourArea());
+                   double rotate = 0;
+                   double xpos = blobs.get(0).getBoxFit().center.x;
+
+                       rotate = (xpos - 90)/250;
+
+                    robot.prowl.drive(0.3,0, rotate, driveSpeed);
+
+                }
+
+            }
+            else {
                 robot.prowl.drive(-gamepad1.right_stick_y, gamepad1.right_stick_x, gamepad1.left_stick_x, driveSpeed);
             }
 
             if (gamepad1.square) {
                 isAutoAim = true;
+                isAutoBall = false;
             }
             if (Math.abs(gamepad1.left_stick_x) > 0.1) {
                 isAutoAim = false;
+            }
+            if (gamepad1.circle) {
+                isAutoBall = true;
+                isAutoAim = false;
+            }
+            if ((Math.abs(gamepad1.right_stick_x) > 0.1)||
+                (Math.abs(gamepad1.right_stick_y) > 0.1 )   ){
+                isAutoBall = false;
             }
             if (gamepad2.left_bumper) {
                 robot.jaws.transfer(0.5);
