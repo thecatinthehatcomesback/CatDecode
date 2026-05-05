@@ -3,12 +3,16 @@ package org.firstinspires.ftc.teamcode;
 import android.util.Log;
 
 import com.acmerobotics.dashboard.FtcDashboard;
+import com.qualcomm.hardware.sparkfun.SparkFunOTOS;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
+import org.firstinspires.ftc.vision.opencv.ColorBlobLocatorProcessor;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 import com.qualcomm.hardware.limelightvision.Limelight3A;
 import com.qualcomm.hardware.limelightvision.LLResult;
@@ -52,7 +56,33 @@ public class MainAuto extends LinearOpMode {
             Log.d("catbot",String.format("turn  0 raw ?????     %s",mesg));
         }
     }
+private void getBall(double timeoutSeconds) {
 
+        List<ColorBlobLocatorProcessor.Blob> blobs = new ArrayList<>();
+        blobs.addAll(robot.prowl.greenLocator.getBlobs());
+        blobs.addAll(robot.prowl.purpleLocator.getBlobs());
+
+
+        if (!blobs.isEmpty()){
+            blobs.sort((a,b)->{
+                return Double.compare(
+                        b.getContourArea(), a.getContourArea());
+            });
+            telemetry.addData("blob","x %.2f y %.2f area %d",
+                    blobs.get(0).getBoxFit().center.x, blobs.get(0).getBoxFit().center.y, blobs.get(0).getContourArea());
+            double xpos = blobs.get(0).getBoxFit().center.x;
+            double radius = blobs.get(0).getCircle().getRadius();
+
+            SparkFunOTOS.Pose2D currentPos = robot.prowl.myOtos.getPosition();
+
+            double targetAngle = currentPos.h + -0.1405868 * xpos + 15.12257;
+
+            double targetDist = 75.54526 - 1.788041 * radius + 0.01211515 * (radius * radius);
+
+            robot.prowl.drive(0.3,0, rotate, driveSpeed);
+
+        }
+}
     private void autoAim(double timeoutSeconds) {
         ElapsedTime timer = new ElapsedTime();
         timer.reset();

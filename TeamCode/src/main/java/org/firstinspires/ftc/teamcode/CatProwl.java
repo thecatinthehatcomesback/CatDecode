@@ -1,6 +1,8 @@
 package org.firstinspires.ftc.teamcode;
 
+import android.graphics.Color;
 import android.util.Log;
+import android.util.Size;
 
 import com.acmerobotics.roadrunner.geometry.Pose2d;
 import com.qualcomm.hardware.sparkfun.SparkFunOTOS;
@@ -10,9 +12,14 @@ import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
+import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.robotcore.internal.opmode.TelemetryImpl;
+import org.firstinspires.ftc.vision.VisionPortal;
+import org.firstinspires.ftc.vision.opencv.ColorBlobLocatorProcessor;
+import org.firstinspires.ftc.vision.opencv.ColorRange;
+import org.firstinspires.ftc.vision.opencv.ImageRegion;
 
 public class CatProwl extends CatHW_Subsystem {
     public CatProwl(CatHW_Async mainHardware){
@@ -22,7 +29,9 @@ public class CatProwl extends CatHW_Subsystem {
     public DcMotor rightFrontMotor = null;
     public DcMotor leftRearMotor = null;
     public DcMotor rightRearMotor = null;
+    ColorBlobLocatorProcessor greenLocator;
 
+    ColorBlobLocatorProcessor purpleLocator;
     boolean isDone;
 
     SparkFunOTOS myOtos;
@@ -40,7 +49,7 @@ public class CatProwl extends CatHW_Subsystem {
         leftRearMotor = hwMap.get(DcMotor.class, "lRear");
         rightRearMotor = hwMap.get(DcMotor.class, "rRear");
         // Define motor directions: //
-        leftFrontMotor.setDirection(DcMotor.Direction.FORWARD);
+        leftFrontMotor.setDirection(DcMotor.Direction.REVERSE);
         leftRearMotor.setDirection(DcMotor.Direction.REVERSE);
         rightFrontMotor.setDirection(DcMotor.Direction.FORWARD);
         rightRearMotor.setDirection(DcMotor.Direction.FORWARD);
@@ -56,6 +65,47 @@ public class CatProwl extends CatHW_Subsystem {
         configureOtos();
         lastPos = new SparkFunOTOS.Pose2D(0,0,0);
         wrap=0;
+
+       greenLocator = new ColorBlobLocatorProcessor.Builder()
+                .setTargetColorRange(ColorRange.ARTIFACT_GREEN)   // Use a predefined color match
+                .setContourMode(ColorBlobLocatorProcessor.ContourMode.EXTERNAL_ONLY)
+                .setRoi(ImageRegion.asUnityCenterCoordinates(-1, 1, 1, -1))
+                .setDrawContours(true)   // Show contours on the Stream Preview
+                .setBoxFitColor(0)       // Disable the drawing of rectangles
+                .setCircleFitColor(Color.rgb(40, 255, 40)) // Draw a circle
+                .setBlurSize(5)          // Smooth the transitions between different colors in image
+
+                // the following options have been added to fill in perimeter holes.
+                .setDilateSize(15)       // Expand blobs to fill any divots on the edges
+                .setErodeSize(15)        // Shrink blobs back to original size
+                .setMorphOperationType(ColorBlobLocatorProcessor.MorphOperationType.CLOSING)
+
+                .build();
+
+        purpleLocator = new ColorBlobLocatorProcessor.Builder()
+                .setTargetColorRange(ColorRange.ARTIFACT_PURPLE)   // Use a predefined color match
+                .setContourMode(ColorBlobLocatorProcessor.ContourMode.EXTERNAL_ONLY)
+                .setRoi(ImageRegion.asUnityCenterCoordinates(-1, 1, 1, -1))
+                .setDrawContours(true)   // Show contours on the Stream Preview
+                .setBoxFitColor(0)       // Disable the drawing of rectangles
+                .setCircleFitColor(Color.rgb(128, 0, 128)) // Draw a circle
+                .setBlurSize(5)          // Smooth the transitions between different colors in image
+
+                // the following options have been added to fill in perimeter holes.
+                .setDilateSize(15)       // Expand blobs to fill any divots on the edges
+                .setErodeSize(15)        // Shrink blobs back to original size
+                .setMorphOperationType(ColorBlobLocatorProcessor.MorphOperationType.CLOSING)
+
+                .build();
+
+        VisionPortal portal = new VisionPortal.Builder()
+                .addProcessor(greenLocator)
+                .addProcessor(purpleLocator)
+                .setCameraResolution(new Size(320, 240))
+                .setCamera(hwMap.get(WebcamName.class, "cam"))
+                .build();
+
+
     }
     private void configureOtos() {
         // Set the desired units for linear and angular measurements. Can be either

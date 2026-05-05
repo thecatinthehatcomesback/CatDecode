@@ -101,45 +101,6 @@ public class ballTelop extends LinearOpMode {
 
         gatePos = 0.5;
 
-        ColorBlobLocatorProcessor greenLocator = new ColorBlobLocatorProcessor.Builder()
-                .setTargetColorRange(ColorRange.ARTIFACT_GREEN)   // Use a predefined color match
-                .setContourMode(ColorBlobLocatorProcessor.ContourMode.EXTERNAL_ONLY)
-                .setRoi(ImageRegion.asUnityCenterCoordinates(-1, 1, 1, -1))
-                .setDrawContours(true)   // Show contours on the Stream Preview
-                .setBoxFitColor(0)       // Disable the drawing of rectangles
-                .setCircleFitColor(Color.rgb(40, 255, 40)) // Draw a circle
-                .setBlurSize(5)          // Smooth the transitions between different colors in image
-
-                // the following options have been added to fill in perimeter holes.
-                .setDilateSize(15)       // Expand blobs to fill any divots on the edges
-                .setErodeSize(15)        // Shrink blobs back to original size
-                .setMorphOperationType(ColorBlobLocatorProcessor.MorphOperationType.CLOSING)
-
-                .build();
-
-        ColorBlobLocatorProcessor purpleLocator = new ColorBlobLocatorProcessor.Builder()
-                .setTargetColorRange(ColorRange.ARTIFACT_PURPLE)   // Use a predefined color match
-                .setContourMode(ColorBlobLocatorProcessor.ContourMode.EXTERNAL_ONLY)
-                .setRoi(ImageRegion.asUnityCenterCoordinates(-1, 1, 1, -1))
-                .setDrawContours(true)   // Show contours on the Stream Preview
-                .setBoxFitColor(0)       // Disable the drawing of rectangles
-                .setCircleFitColor(Color.rgb(128, 0, 128)) // Draw a circle
-                .setBlurSize(5)          // Smooth the transitions between different colors in image
-
-                // the following options have been added to fill in perimeter holes.
-                .setDilateSize(15)       // Expand blobs to fill any divots on the edges
-                .setErodeSize(15)        // Shrink blobs back to original size
-                .setMorphOperationType(ColorBlobLocatorProcessor.MorphOperationType.CLOSING)
-
-                .build();
-
-        VisionPortal portal = new VisionPortal.Builder()
-                .addProcessor(greenLocator)
-                .addProcessor(purpleLocator)
-                .setCameraResolution(new Size(320, 240))
-                .setCamera(hardwareMap.get(WebcamName.class, "cam"))
-                .build();
-
         telemetry.setMsTransmissionInterval(100);   // Speed up telemetry updates for debugging.
         telemetry.setDisplayFormat(Telemetry.DisplayFormat.MONOSPACE);
         /*
@@ -207,8 +168,8 @@ public class ballTelop extends LinearOpMode {
             } else if (isAutoBall){
 
                 List<ColorBlobLocatorProcessor.Blob> blobs = new ArrayList<>();
-                blobs.addAll(greenLocator.getBlobs());
-                blobs.addAll(purpleLocator.getBlobs());
+                blobs.addAll(robot.prowl.greenLocator.getBlobs());
+                blobs.addAll(robot.prowl.purpleLocator.getBlobs());
 
 
                 if (!blobs.isEmpty()){
