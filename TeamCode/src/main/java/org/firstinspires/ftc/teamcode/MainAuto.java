@@ -75,11 +75,20 @@ private void getBall(double timeoutSeconds) {
 
             SparkFunOTOS.Pose2D currentPos = robot.prowl.myOtos.getPosition();
 
-            double targetAngle = currentPos.h + -0.1405868 * xpos + 15.12257;
+            double targetAngle = currentPos.h + -0.18 * xpos + 26; //0.1405868, 15.12257
 
             double targetDist = 75.54526 - 1.788041 * radius + 0.01211515 * (radius * radius);
 
-            robot.prowl.drive(0.3,0, rotate, driveSpeed);
+            targetDist = targetDist + 15;//drive further
+
+            targetDist = Math.min(targetDist, 60.0); // dont go more than 5 foot
+
+            double dy = Math.cos(Math.toRadians(targetAngle)) * targetDist;
+
+            double dx = -Math.sin(Math.toRadians(targetAngle)) * targetDist;
+
+            Log.d("catbot", String.format("getball x %.2f radius %2.1f angle: %3.1f Dist %3.1f dx %3.1f dy %3.1f" , xpos, radius,targetAngle,targetDist,dx,dy));
+            robot.prowl.driveto(robot.prowl.lastPos.x+dx,robot.prowl.lastPos.y+dy,robot.prowl.lastPos.h,0.6,timeoutSeconds);
 
         }
 }
@@ -121,18 +130,21 @@ private void getBall(double timeoutSeconds) {
                 robot.prowl.drive(0, 0, 0, 0);
                 return;
             }
-
+            if (lastAngle == xAngle){
+                continue;
+            }
             double dt = Math.max(1e-3, pidTimer.seconds());
             pidTimer.reset();
             if (lastAngle==999){
                 lastAngle = xAngle;
             }
+
             double derivative = (xAngle - lastAngle) / dt;
             lastAngle = xAngle;
 
             // Rotate toward target
-            double kP = 0.08; // proportional gain
-            double kD = .004;
+            double kP = 0.06; // proportional gain
+            double kD = .001;
             double turn = xAngle * kP + derivative * kD;
 
             // minimum turn power so small errors still correct
@@ -223,7 +235,7 @@ private void getBall(double timeoutSeconds) {
                     if (robot.isCloseStart) {
                         robot.adjust = 8;
                     } else {
-                        robot.adjust = 4;
+                        robot.adjust = -1;
                     }
                 }
                 delayTimer.reset();
@@ -240,7 +252,7 @@ private void getBall(double timeoutSeconds) {
                     if (robot.isCloseStart) {
                         robot.adjust = 3;
                     } else {
-                        robot.adjust = 4;
+                        robot.adjust = -1;
                     }
                 }
                 delayTimer.reset();
@@ -341,18 +353,44 @@ private void getBall(double timeoutSeconds) {
         robot.jaws.gateClosed();
     }
     private void farRed(){
-        robot.launch.setTargetRPM(3900);
+        robot.launch.setTargetRPM(3300);
         robot.prowl.driveto(3,8,-20,0.4,5);
         autoAim(3);
-        robot.robotWait(4);
-        robot.jaws.gateOpen();
+        robot.launch.waitSpeed();
+        shoot();
+        //go get set 1
         robot.jaws.intake.setPower(1);
         robot.jaws.transfer (.5);
-        robot.robotWait(2.5);
-        robot.jaws.intake.setPower(0);
-        robot.jaws.transfer(0);
-        robot.jaws.gateClosed();
-        robot.prowl.driveto(23,2,0,0.4,5);
+        robot.prowl.driveto(3,15,-90,0.5,3);
+        robot.robotWait(.5);
+        getBall(3);
+        //shoot set 1
+        robot.prowl.driveto(3,8,-20,.6,5);
+        autoAim(3);
+        shoot();
+        // go get set 2
+        robot.jaws.intake.setPower(1);
+        robot.jaws.transfer (.5);
+        robot.prowl.driveto(3,15,-90,0.5,3);
+        robot.robotWait(.5);
+        getBall(3);
+        //shoot set 2
+        robot.prowl.driveto(3,8,-20,.6,5);
+        autoAim(3);
+        shoot();
+        //go get set 3
+        robot.jaws.intake.setPower(1);
+        robot.jaws.transfer (.5);
+        robot.prowl.driveto(3,15,-90,.5,3);
+        robot.robotWait(.5);
+        getBall(3);
+        //shoot set 3
+        robot.prowl.driveto(3,8,-20,.6,5);
+        autoAim(3);
+        shoot();
+        //drive off
+        robot.prowl.driveto(1,30,0,.6,5);
+
         //go get 1 stack
        /* robot.prowl.driveto(12,28,-90,0.6,5);
         robot.jaws.intake.setPower(1);

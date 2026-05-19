@@ -195,7 +195,7 @@ public class CatProwl extends CatHW_Subsystem {
         double kPdrive=0.3;
         double kIdrive=0.01;
         double kDdrive=0.01;
-        double kProt=0.5;
+        double kProt=0.9;
         double kIrot=0.01;
         double kDrot=0.01;
 
@@ -219,6 +219,7 @@ public class CatProwl extends CatHW_Subsystem {
         double dist = Math.sqrt( Math.pow(targetPos.getX() - currentPos.x , 2) + Math.pow(targetPos.getY() - currentPos.y,2) );
         double motionAngle=Math.atan2(targetPos.getY() - currentPos.y,targetPos.getX() - currentPos.x);
         double rotDiff=targetPos.getHeading()-Math.toRadians(currentPos.h);
+        double rotDiffDeg = Math.toDegrees(targetPos.getHeading())-(currentPos.h);
         double drivePow=driveSpeed*Math.min(dist*kPdrive,1.0);
         double ypow= Math.sin(motionAngle-Math.toRadians(currentPos.h))*drivePow;
         double xpow= Math.cos(motionAngle-Math.toRadians(currentPos.h))*drivePow;
@@ -238,7 +239,7 @@ public class CatProwl extends CatHW_Subsystem {
         rightRearMotor.setPower(backRightPower);
         Log.d("catbot",String.format("tar %.1f %.1f %.0f cur %.1f %.1f %.0f %.0f wr: %d LF %.2f LR %.2f RF %.2f RR %.2f dist %.2f motionAngle %.2f xpow %.2f ypow %.2f rpow %.2f " ,
                 targetPos.getX(), targetPos.getY(), Math.toDegrees(targetPos.getHeading()),currentPos.x , currentPos.y, currentPos.h,lastPos.h, wrap, frontLeftPower, backLeftPower, frontRightPower, backRightPower, dist, motionAngle, xpow, ypow, rpow ));
-        if(dist<1.0){
+        if((dist<1.0)&&(Math.abs(rotDiffDeg) < 3.0)){
             setDrivePowers(0,0,0,0);
             isDone=true;
         }

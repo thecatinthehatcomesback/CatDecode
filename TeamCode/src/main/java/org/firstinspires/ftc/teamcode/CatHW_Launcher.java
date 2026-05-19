@@ -151,6 +151,16 @@ public class CatHW_Launcher {
         targetRPM = rpm;
         setPowerFromPID();
     }
+    public void waitSpeed () {
+        ElapsedTime timeOut = new ElapsedTime();
+        while (timeOut.seconds()<2.5){
+            if (rpmEMA >= targetRPM){
+                break;
+            }
+        }
+    }
+
+
     public void farLaunch(){
         targetRPM = 2000;
         setPowerFromPID();
